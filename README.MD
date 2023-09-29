@@ -1,4 +1,4 @@
-# Student 405 Python Client Server Project
+# C2 Server
 
 ## Contents
 1. [Features](#features)

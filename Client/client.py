@@ -24,7 +24,7 @@ from time import sleep
 from datetime import datetime
 
 
-address = "127.0.0.1", 1000
+address = "127.0.0.1", 11000
 
 class Client:
     """Class handles all client side funtionality"""
