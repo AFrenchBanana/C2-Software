@@ -15,14 +15,22 @@ if __name__ == '__main__':
         multi_handler.create_certificate() # checks if certificates are available
         multi_handler.startsocket() # starts the socket
         print(colorama.Fore.CYAN + """
-    d8888   .d8888b.  888888888     8888888 8888888b. 88888888888 
-   d8P888  d88P  Y88b 888             888   888   Y88b    888     
-  d8P 888  888    888 888             888   888    888    888     
- d8P  888  888    888 8888888b.       888   888   d88P    888     
-d88   888  888    888      "Y88b      888   8888888P"     888     
-8888888888 888    888        888      888   888 T88b      888     
-      888  Y88b  d88P Y88b  d88P      888   888  T88b     888     
-      888   "Y8888P"   "Y8888P"     8888888 888   T88b    888
+        CCCCCCCCCCCCC 222222222222222    
+     CCC::::::::::::C2:::::::::::::::22  
+   CC:::::::::::::::C2::::::222222:::::2 
+  C:::::CCCCCCCC::::C2222222     2:::::2 
+ C:::::C       CCCCCC            2:::::2 
+C:::::C                          2:::::2 
+C:::::C                       2222::::2  
+C:::::C                  22222::::::22   
+C:::::C                22::::::::222     
+C:::::C               2:::::22222        
+C:::::C              2:::::2             
+ C:::::C       CCCCCC2:::::2             
+  C:::::CCCCCCCC::::C2:::::2       222222
+   CC:::::::::::::::C2::::::2222222:::::2
+     CCC::::::::::::C2::::::::::::::::::2
+        CCCCCCCCCCCCC22222222222222222222
 """)
         print(colorama.Back.GREEN + "Type Help for available commands")
         multi_handler.multi_handler() # starst the milti handler

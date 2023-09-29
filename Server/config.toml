@@ -1,6 +1,6 @@
 [server]
 listenaddress = "0.0.0.0"
-port = 1000
+port = 11000
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
 
@@ -11,7 +11,7 @@ keylength = 75
 [packetsniffer]
 active = false
 listenaddress = "0.0.0.0"
-port = 20001
+port = 11001
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
 debugPrint = true
