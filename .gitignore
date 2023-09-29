@@ -1,0 +1,5 @@
+*pycharm*
+/Server/ServerDatabase/database.db
+/Server/Certificates/key.pem
+/Server/Certificates/cert.pem
+
