@@ -9,7 +9,7 @@ TLSkey = "./Certificates/key.pem"
 keylength = 75
 
 [packetsniffer]
-active = false
+active = true
 listenaddress = "0.0.0.0"
 port = 11001
 TLSCertificate = "./Certificates/cert.pem"

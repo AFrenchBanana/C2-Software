@@ -134,7 +134,7 @@ class PacketSniffer:
                             packetbyte += 40
 
         
-                        if transport_protocol == 6:
+                        if transport_protocol == 6: #tcp
                             end_index = packetbyte + 20
                             transport_protocol = "TCP"
                             tcp_header_format = '!HHLLBBHHH'
@@ -152,7 +152,7 @@ class PacketSniffer:
                             print(f"Source Mac: {source_mac} Destination Mac {destination_mac} SourceIP = {source_ip} destIP = {dest_ip} TTL: {ttl} {transport_protocol} SrcPort: {source_port} DestPort: {dest_port}") # prints packet
 
 
-                        elif transport_protocol == 17:
+                        elif transport_protocol == 17: #udp
                             end_index = packetbyte + 8
                             udp_packet_data= data[packetbyte:end_index]
                             transport_protocol == "UDP"
