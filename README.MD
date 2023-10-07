@@ -1,5 +1,7 @@
 # C2 Server
 
+**This tool is only to be used with consent with all parties involed**
+
 ## Contents
 1. [Features](#features)
 2. [Client Features](#client-features)
@@ -186,5 +188,5 @@ TLS keys should be the same as the server (these currently do not autogenerate)
 7. All data the client recieves is sent to the server.
 8. The server will either write to the file or print to the screen (config depedant)
 
-## Knwon bugs
+## Known bugs
 1. The certificate generator can make files not folders, please ensure any folders exist as directed in the config file
