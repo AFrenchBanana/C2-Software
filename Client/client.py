@@ -463,7 +463,7 @@ processor = {platform.processor()}"""))
 
                 size = stat_info.st_size
 
-                modified_time = datetime.fromtimestamp(stat_info.st_mtime)
+                modified_time = datetime.fromtimestamp(stat_info.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
                 message += f"{permissions} {num_links} {owner} {group} {size} {modified_time} {item}\n" #formats the message line by line
         #error handling
         except PermissionError: 

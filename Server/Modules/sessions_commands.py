@@ -59,7 +59,7 @@ class SessionCommandsClass:
         """list processes running on client"""
         send_data(conn, "list_processes") # calls the list processes command on client
         processes = receive_data(conn) # recieves results
-        self.database.insert_entry("Processes", f'"{r_address[0]}","{processes}","{datetime.now()}"') #inserts to database
+        self.database.insert_entry("Processes", f'"{r_address[0]}","{processes}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') #inserts to database
         print(processes) # prints results
         return
 
@@ -69,7 +69,7 @@ class SessionCommandsClass:
         send_data(conn,"systeminfo") # sends the system info command to start the process
         data = receive_data(conn) # recives data 
         print(data) # prints the results
-        self.database.insert_entry("SystemInfo", f'"{r_address[0]}","{data}","{datetime.now()}"') # inserts the entry
+        self.database.insert_entry("SystemInfo", f'"{r_address[0]}","{data}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # inserts the entry
         return
     
 
@@ -160,7 +160,7 @@ class SessionCommandsClass:
         """lists services on the client"""
         send_data(conn, "list_services") # calls list_services function on the client
         services = receive_data(conn) # recieve the services
-        self.database.insert_entry("Services", f'"{r_address[0]}","{services}","{datetime.now()}"') # insert data to database
+        self.database.insert_entry("Services", f'"{r_address[0]}","{services}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # insert data to database
         print(services) # prints the services
         return
 
@@ -175,7 +175,7 @@ class SessionCommandsClass:
                 break
             netstat += data # adds line of data to string
         print(colorama.Fore.YELLOW + netstat) # prints netstat
-        self.database.insert_entry("Netstat", f'"{r_address[0]}","{netstat}","{datetime.now()}"') #inserts entry to database
+        self.database.insert_entry("Netstat", f'"{r_address[0]}","{netstat}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') #inserts entry to database
         return
 
 
@@ -183,7 +183,7 @@ class SessionCommandsClass:
         """prints the diskuage for the client"""
         send_data(conn, "disk_usage") #calls the disk_usuage function on the client
         results = receive_data(conn) # saves the results
-        self.database.insert_entry("Disk", f'"{r_address[0]}","{results}","{datetime.now()}"') # inserts to database
+        self.database.insert_entry("Disk", f'"{r_address[0]}","{results}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # inserts to database
         print(colorama.Fore.YELLOW + results) # prints results
 
 
@@ -197,7 +197,7 @@ class SessionCommandsClass:
             pass
         else:
             try:
-                self.database.insert_entry("Shell", f'"{r_address[0]}","{datetime.now()}", "ls {dir}", "{directory}"') # insert to database
+                self.database.insert_entry("Shell", f'"{r_address[0]}","{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}", "ls {dir}", "{directory}"') # insert to database
             except:
                 pass
         print(directory) # print directory
