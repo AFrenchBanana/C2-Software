@@ -363,13 +363,24 @@ processor = {platform.processor()}"""))
     def list_services(self):
         """list services and grab the status of the service"""
         OS = platform.system() # gets the OS
+        if OS == "Linux":
+            # Read the /etc/os-release file to get distribution-specific information
+            with open('/etc/os-release', 'r') as file:
+                for line in file:
+                    if line.startswith('NAME='):
+                        release = (line.split('=')[1].strip('" \n'))
+            if release == "Fedora Linux":
+                path = "/etc/systemd/system"
+                # need to add /usr/lib/systemd/system for red hat as well
+            else:
+                path = "/etc/system/system"
         if OS == 'Linux': # if the OS is Linux
             services = ""
-            if os.path.exists("/etc/system/system"): # checks system folder exists
-               for root, dirs, files in os.walk("/etc/system/system"): # loads all files into data
+            if os.path.exists(path): # checks system folder exists
+               for root, dirs, files in os.walk(path): # loads all files into data
                    for file in files: # for each file in the files
                        if file.endswith('.service'):# check it ends in .service
-                            service_file = os.path.join("/etc/system/system", file) # join path to the filename
+                            service_file = os.path.join(path, file) # join path to the filename
                             status = "Unknown" # set status to unkown
                             if os.path.exists(service_file): # check the service file exists
                                with open(service_file, "r") as f: # opens the files
