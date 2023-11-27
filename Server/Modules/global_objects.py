@@ -8,12 +8,18 @@ Contains error handled send and recieve functions that can handle bytes and stri
 
 import struct
 from tqdm import tqdm
+from Modules.GUI import *
+import sys
 
 #global socket details to alllow multiple connections and the ability
 #to interact with them individually.
 connectionaddress = []
 connectiondetails = []
 hostname = []
+
+app = QApplication(sys.argv)
+window = MainWindow()
+
 
 
 def add_connection_list(conn, r_address, host):
@@ -95,4 +101,5 @@ def send_data_loadingbar(conn, data):
         except AttributeError:
             conn.sendall(chunk) #if the data cant be encoded sent it as it is. 
     return
+
 

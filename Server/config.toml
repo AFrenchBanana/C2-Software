@@ -1,15 +1,16 @@
 [server]
 listenaddress = "0.0.0.0"
-port = 11000
+port = 1100
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
+GUI = false
 
 [authentication]
 #key length for the random auth string
 keylength = 75
 
 [packetsniffer]
-active = true
+active = false
 listenaddress = "0.0.0.0"
 port = 11001
 TLSCertificate = "./Certificates/cert.pem"
