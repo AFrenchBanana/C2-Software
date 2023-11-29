@@ -51,7 +51,8 @@ def send_data(conn, data):
     """
     total_length = len(data) # calculates the total length
     chunk_size = 4096 # sets the chunk size
-    conn.sendall(struct.pack('!II', total_length, chunk_size)) # sends a header with total_length and chunksize
+    print(total_length, chunk_size)
+    conn.sendall(struct.pack('!II', total_length, chunk_size))   
     for i in range(0, total_length, chunk_size): # range of total length incrementing in chunksize
         end_index = i + chunk_size if i + chunk_size < total_length else total_length # calculates how much data needs to be sent
         chunk = data[i:end_index] # makes the chunk with the required amount of data

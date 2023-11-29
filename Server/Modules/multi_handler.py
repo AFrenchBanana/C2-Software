@@ -52,23 +52,23 @@ class MultiHandler:
   
     def startsocket(self):
         """starts a TLS socket and threads the accept connection to allow multiple connections"""
-        global SSL_Socket
+        global SSL_Socket, socket_clear
         #sets the listen address based off the config file variables
         self.address = self.config['server']['listenaddress'], self.config['server']['port']
-
         #loads context to allow the socket to be wrapped in SSL
-        context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=self.config['server']['TLSCertificate'], keyfile=self.config['server']['TLSkey'])
+        #context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        #context.load_cert_chain(certfile=self.config['server']['TLSCertificate'], keyfile=self.config['server']['TLSkey'])
         socket_clear = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-        SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
+        #SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
 
         # tries to bind the socket to an address
         try:
-            SSL_Socket.bind(self.address)
+            socket_clear.bind(self.address)
         except OSError: # error incase socket is already being used
             print(colorama.Fore.RED + f"{self.address[0]}:{self.address[1]} already in use")
             sys.exit(1)
-        SSL_Socket.listen()
+        socket_clear.listen()
+        print("1")
         #starts a new thead to the client handler toallow multiple connections,
         listenerthread = threading.Thread(target=self.accept_connection, args=()) # configure the thread
         listenerthread.daemon = True #turns the thread into the daemon
@@ -82,7 +82,7 @@ class MultiHandler:
         #Loop that handles new connections
         threadDB = DatabaseClass()
         while True:
-            conn, r_address = SSL_Socket.accept() #accepts the connection
+            conn, r_address = socket_clear.accept() #accepts the connection
             send_data(conn, self.Authentication.get_authentication_string())
             if(self.Authentication.test_auth(receive_data(conn), r_address[1])) == True:
                 hostname = receive_data(conn)

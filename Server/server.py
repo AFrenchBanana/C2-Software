@@ -44,7 +44,7 @@ C:::::CCCCCCCC::::C2:::::2       222222
 """)
       print(colorama.Back.GREEN + "Type Help for available commands")
       multi_handler.multi_handler() # starst the milti handler
-  except KeyboardInterrupt: # handles keyboard interpt
+  except ValueError: # handles keyboard interpt
       print("\n use exit next time")
       try:
         sys.exit(app.exec_())
