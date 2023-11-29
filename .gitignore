@@ -4,3 +4,5 @@
 /Server/Modules/__pycache__
 /Server/ServerDatabase/__pycache__
 /Server/PacketSniffing/__pychace__
+.vscode
+test.*
