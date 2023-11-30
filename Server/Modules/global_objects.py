@@ -51,7 +51,7 @@ def send_data(conn, data):
     """
     total_length = len(data) # calculates the total length
     chunk_size = 4096 # sets the chunk size
-    conn.sendall(struct.pack('!II', total_length, chunk_size))   
+    conn.sendall(struct.pack('!II', total_length, chunk_size)) # sends a header with total_length and chunksize
     for i in range(0, total_length, chunk_size): # range of total length incrementing in chunksize
         end_index = i + chunk_size if i + chunk_size < total_length else total_length # calculates how much data needs to be sent
         chunk = data[i:end_index] # makes the chunk with the required amount of data
@@ -66,9 +66,9 @@ def receive_data(conn):
     """function that recieves data
     first the header is recieved with the chunk size and total length
     after this it recieves data in the chunk size until the last packet where it is the remaining length"""
+    received_data = b'' # sets receveid bytes to a bytes string
     try:
         total_length, chunk_size = struct.unpack('!II',conn.recv(8)) #unpacks the header length
-        received_data = b'' # sets receveid bytes to a bytes string
         while total_length > 0: # loop until total_length is less than 0 
             chunk = conn.recv(min(chunk_size, total_length)) # receives chunk based off whatever is smaller, total length or chunk_size
             received_data += chunk # adds the chunk to recieved data
@@ -80,6 +80,7 @@ def receive_data(conn):
     except struct.error:
         pass
     return received_data
+
 
 
 def send_data_loadingbar(conn, data):

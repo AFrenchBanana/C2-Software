@@ -2,33 +2,15 @@
 CC = gcc
 CFLAGS = 
 LDFLAGS = -lssl -lcrypto
+output = client.elf
 
-# Source and object files
-SRC_DIR = Linux Generic
-SRC = main.c $(wildcard $(addsuffix /*.c, $(SRC_DIR)))
-OBJ = $(SRC:.c=.o)
+build:
+	$(CC) $(CFLAGS) -o $(output) main.c Linux/*.c Generic/*.c $(LDFLAGS)
 
-# Target 
-TARGET = client.elf
+rebuild: clean build
 
-# Rules
-all: $(TARGET) # Name of the target
+run: build
+	./$(output)
 
-# Linking
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS) 
-
-# Object files compilation rules
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Removes only object files
-cleanobj:
-	rm -f $(OBJ)
-
-# Removes object files and the target
-clean: cleanobj
-	rm -f $(TARGET)
-
-# Phony targets indicate that the target is not a file
-.PHONY: all clean cleanobj
+clean:
+	rm -f $(output)

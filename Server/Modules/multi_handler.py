@@ -91,7 +91,8 @@ class MultiHandler:
                     send_data(conn, str(self.config['packetsniffer']['port'])) # send port number
                 add_connection_list(conn, r_address, hostname) #adds the connection to the lists
                 threadDB.insert_entry("Addresses", f'"{r_address[0]}", "{r_address[1]}", "{hostname}", "{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # adds the IP address to the database
-                
+            else:
+                conn.close() 
                 
     def multi_handler(self): 
     #multi handler function that allows a user to interact with the sessions.

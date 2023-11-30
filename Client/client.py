@@ -148,27 +148,23 @@ class Client:
         return
     
 
-    def receive_data(self, recvsocket):
-        """function that recieves data
-        first the header is recieved with the chunk size and total length
-        after this it recieves data in the chunk size until the last packet where it is the remaining length"""
+    def receive_data(conn):
+        received_data = b''
         try:
-            total_length, chunk_size = struct.unpack('!II',recvsocket.recv(8)) #unpacks the header length
-            received_data = b'' # sets receveid bytes to a bytes string
-            while total_length > 0: # loop until total_length is less than 0 
-                chunk = recvsocket.recv(min(chunk_size, total_length)) # receives chunk based off whatever is smaller, total length or chunk_size
-                received_data += chunk # adds the chunk to recieved data
-                total_length -= len(chunk) # removes the chunk length from the total_length
+            total_length, chunk_size = struct.unpack('!II', conn.recv(8))
+            print("Header received - Total length:", total_length, "Chunk size:", chunk_size)
+            while total_length > 0:
+                chunk = conn.recv(min(chunk_size, total_length))
+                received_data += chunk
+                total_length -= len(chunk)
             try:
-                received_data = received_data.decode("utf-8") # attempts to decode the data
+                received_data = received_data.decode("utf-8")
             except UnicodeDecodeError:
-                pass # else doesnt decode the data and returns it as bytes
+                pass
+            print("Received data:", received_data)
         except struct.error:
             pass
-        try:
-            return received_data
-        except UnboundLocalError:
-            return
+        return received_data
 
 
     def shell(self):

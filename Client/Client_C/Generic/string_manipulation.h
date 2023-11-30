@@ -1,1 +1,1 @@
-char* reverseString(char);
+char* reverseString(char *);
