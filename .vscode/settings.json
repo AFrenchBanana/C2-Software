@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "stdint.h": "c",
-        "evp.h": "c"
+        "evp.h": "c",
+        "socket.h": "c",
+        "in.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "stdbool.h": "c",
+        "send_receive.h": "c"
     }
 }
