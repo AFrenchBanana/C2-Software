@@ -437,6 +437,7 @@ processor = {platform.processor()}"""))
             self.send_data(ssl_sock, f"{str(self.parse_tcp_line(line))}\n") # parses the data to make it in a readable format then sends it line by line
         self.send_data(ssl_sock, "break") # sends the break to signify last line
 
+
     def list_dir(self):
         """list directorys without using on system binaries in the style of ls -al"""
         message = ""

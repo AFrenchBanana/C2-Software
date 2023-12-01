@@ -17,25 +17,30 @@ int sockfd;
 struct sockaddr_in server_addr;
 
 int ssl_connection() {
-    // Specify the server address and port
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    inet_pton(AF_INET, SOCK_ADDRESS, &server_addr.sin_addr);
+    while(true) {
+           // Specify the server address and port
+        memset(&server_addr, 0, sizeof(server_addr));
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(PORT);
+        inet_pton(AF_INET, SOCK_ADDRESS, &server_addr.sin_addr);
 
-    // Create a socket
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        perror("Error creating socket");
-        return EXIT_FAILURE;
+        // Create a socket
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd == -1) {
+            perror("Error creating socket");
+            close(sockfd);
+            sleep(5);        }
+
+        // Connect to the server
+        if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+            perror("Error connecting to the server");
+            close(sockfd);
+            sleep(5);        }
+        else {
+            puts("Connected to server");
+            break;
+        }
     }
-
-    // Connect to the server
-    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
-        perror("Error connecting to the server");
-        return EXIT_FAILURE;
-    }
-
     puts("Connected to server");
     return sockfd;
 }
