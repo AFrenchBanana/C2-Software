@@ -1,1 +1,2 @@
-void server_handler(int);
+#include <openssl/ssl.h>
+void server_handler(SSL*);

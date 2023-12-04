@@ -10,17 +10,18 @@
 #include <time.h>
 #include <sys/syscall.h>
 #include <string.h>
+#include <openssl/ssl.h>
 
 #include "../Generic/send_receive.h"
 
-void listdir(int sockfd) {
+void listdir(SSL * ssl) {
     DIR *dir;
     struct dirent *entry;
-    char *requested_dir = receive_data(sockfd);
+    char *requested_dir = receive_data(ssl);
     dir = opendir(requested_dir);
 
     if (dir == NULL) {
-        send_data(sockfd, "Error: opening directory");
+        send_data(ssl, "Error: opening directory");
         return;
     }
 
@@ -28,7 +29,7 @@ void listdir(int sockfd) {
     size_t buffer_size = 4096;  // Adjust this size as needed
     char *buffer = (char *)malloc(buffer_size);
     if (buffer == NULL) {
-        send_data(sockfd, "Memory allocation error");
+        send_data(ssl, "Memory allocation error");
         closedir(dir);
         return;
     }
@@ -46,7 +47,7 @@ void listdir(int sockfd) {
             buffer_size *= 2;
             char *new_buffer = (char *)realloc(buffer, buffer_size);
             if (new_buffer == NULL) {
-                send_data(sockfd, "Memory allocation error");
+                send_data(ssl, "Memory allocation error");
                 closedir(dir);
                 free(buffer);
                 return;
@@ -60,7 +61,7 @@ void listdir(int sockfd) {
     }
     printf("Buffer: %s\n", buffer);
     closedir(dir);
-    send_data(sockfd, buffer);
+    send_data(ssl, buffer);
 
     // Free the allocated buffer
     free(buffer);

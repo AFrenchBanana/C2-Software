@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <openssl/ssl.h>
 
 #include "hashing.h"
 #include "send_receive.h"
 
-void hash_file(int sockfd){
-        char * file = receive_data(sockfd); 
-        send_data(sockfd, "1");
+void hash_file(SSL* ssl){
+        char * file = receive_data(ssl); 
+        send_data(ssl, "1");
         unsigned char data[1024];
         int bytes;
         FILE *fp = fopen(file, "rb");
@@ -20,7 +20,7 @@ void hash_file(int sockfd){
         }
         fclose(fp);
         printf("Hash: %s\n", data);
-        send_data(sockfd, file);
-        send_data(sockfd, data);
+        send_data(ssl, file);
+        send_data(ssl, data);
         puts("Hash sent");
     }

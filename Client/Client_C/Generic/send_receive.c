@@ -4,12 +4,13 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <openssl/ssl.h>
 
 #include "send_receive.h"
 
 #define MAX_BUFFER_SIZE 4096
 
-int send_header(int sockfd, uint32_t total_length, uint32_t chunk_size) {
+int send_header(SSL* ssl, uint32_t total_length, uint32_t chunk_size) {
     total_length = htonl(total_length); // convert from host to network byte order
     chunk_size = htonl(chunk_size); // convert from host to network byte order
 
@@ -25,7 +26,7 @@ int send_header(int sockfd, uint32_t total_length, uint32_t chunk_size) {
     }
     printf("\n");
     // Send the serialized data
-    ssize_t sent_bytes = send(sockfd, buffer, sizeof(buffer), 0);
+    ssize_t sent_bytes = SSL_write(ssl, buffer, sizeof(buffer));
     if (sent_bytes < 0 || sent_bytes != sizeof(buffer)) {
         perror("Error sending header");
         return -1;
@@ -33,12 +34,12 @@ int send_header(int sockfd, uint32_t total_length, uint32_t chunk_size) {
     return 0;
 }
 
-void send_data(int sockfd, const char* data) {
+void send_data(SSL* ssl, const char* data) {
     // Get the total length of the data
     uint32_t total_length = strlen(data);
     uint32_t chunk_size = MAX_BUFFER_SIZE;
     // Send the header
-    if (send_header(sockfd, total_length, chunk_size) < 0) {
+    if (send_header(ssl, total_length, chunk_size) < 0) {
         return;
     }
     // Allocate a buffer and initialize it with zeros
@@ -51,7 +52,7 @@ void send_data(int sockfd, const char* data) {
         size_t end_index = i + chunk_size < total_length ? i + chunk_size : total_length; //
         size_t chunk_size_to_send = end_index - i; 
         const char* chunk = zeroed_data + i; 
-        ssize_t sent_bytes = send(sockfd, chunk, chunk_size_to_send, 0); 
+        ssize_t sent_bytes = SSL_write(ssl, chunk, chunk_size_to_send); 
         if (sent_bytes < 0 || sent_bytes != (ssize_t)chunk_size_to_send) {
             perror("Error sending data chunk");
             free(zeroed_data);
@@ -63,15 +64,15 @@ void send_data(int sockfd, const char* data) {
     return;
 }
 
-char* receive_data(int sockfd) {
+char* receive_data(SSL* ssl) {
     uint32_t total_length, chunk_size;
     // Receive total_length
-    if (recv(sockfd, &total_length, sizeof(uint32_t), 0) < 0) {
+    if (SSL_read(ssl, &total_length, sizeof(uint32_t)) < 0) {
         perror("Error receiving total length");
         return NULL;
     }
     // Receive chunk_size
-    if (recv(sockfd, &chunk_size, sizeof(uint32_t), 0) < 0) {
+    if (SSL_read(ssl, &chunk_size, sizeof(uint32_t)) < 0) {
         perror("Error receiving chunk size");
         return NULL;
     }
@@ -88,7 +89,7 @@ char* receive_data(int sockfd) {
     size_t received_bytes = 0;
     while (total_length > 0) {
         char chunk[MAX_BUFFER_SIZE];
-        ssize_t bytes_received = recv(sockfd, chunk, sizeof(chunk), 0);
+        ssize_t bytes_received = SSL_read(ssl, chunk, sizeof(chunk));
         // Check for errors
         if (bytes_received < 0) {
             perror("Error receiving data");

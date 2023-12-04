@@ -3,36 +3,36 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <openssl/ssl.h>
 #include "send_receive.h"
 #include "../Linux/systeminfo.h"
 #include "hash_file.h"
 #include "../Linux/list_dir.h"
 
 
-void server_handler(int sockfd){
-    printf("Server handler\n");
+void server_handler(SSL* ssl){
     while(true){
-        char *data = receive_data(sockfd);
+        char *data = receive_data(ssl);
         if (data == NULL){
             free(data);
             continue;
         }
         if (strcmp(data, "shutdown") == 0) {
             free(data);
-            close(sockfd);
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
             exit(0);
         } else if (strcmp(data, "systeminfo") == 0) {
-            systeminfo(sockfd);
+            systeminfo(ssl);
         } else if (strcmp(data, "checkfiles") == 0) {
             printf("Hashing file\n");
-            hash_file(sockfd);
+            hash_file(ssl);
         } else if (strcmp(data, "list_dir") == 0) {
             printf("Listing directory\n");
-            listdir(sockfd);
+            listdir(ssl);
         }        
         else {
-            send_data(sockfd, "Invalid command");
+            send_data(ssl, "Invalid command");
         }
         free(data);
     }

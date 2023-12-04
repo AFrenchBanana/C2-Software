@@ -1,1 +1,3 @@
-void hash_file(int sockfd);
+#include <openssl/ssl.h>
+
+void hash_file(SSL*);
