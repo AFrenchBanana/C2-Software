@@ -47,3 +47,5 @@ void * systeminfo(int sockfd)
     printf("%s", platformInfo);
     send_data(sockfd, platformInfo);
 }
+
+

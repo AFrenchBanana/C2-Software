@@ -193,7 +193,7 @@ class SessionCommandsClass:
         dir = input("What directory do you want to list?: ") # ask what directory to list
         send_data(conn, dir) # sends the directory
         directory = receive_data(conn) # recives processed data
-        if directory.startswith("Error:"): # if the data is an error pass
+        if str(directory).startswith("Error:"): # if the data is an error pass
             pass
         else:
             try:

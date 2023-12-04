@@ -16,7 +16,6 @@
 #include "Generic/server_handler.h"
 #include "Generic/hash_file.h"
 
-void server_handler(int);
 
 int main() {
     while(true) {

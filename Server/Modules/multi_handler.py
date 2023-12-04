@@ -68,7 +68,6 @@ class MultiHandler:
             print(colorama.Fore.RED + f"{self.address[0]}:{self.address[1]} already in use")
             sys.exit(1)
         socket_clear.listen()
-        print("1")
         #starts a new thead to the client handler toallow multiple connections,
         listenerthread = threading.Thread(target=self.accept_connection, args=()) # configure the thread
         listenerthread.daemon = True #turns the thread into the daemon

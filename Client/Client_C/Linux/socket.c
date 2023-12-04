@@ -10,7 +10,7 @@
 #include "../Generic/string_manipulation.h"
 #include "../Generic/hashing.h"
 
-#define PORT 11001
+#define PORT 1100
 #define SOCK_ADDRESS "127.0.0.1"
 
 int sockfd;

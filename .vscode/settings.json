@@ -9,6 +9,7 @@
         "string.h": "c",
         "stdbool.h": "c",
         "send_receive.h": "c",
-        "systeminfo.h": "c"
+        "systeminfo.h": "c",
+        "hash_file.h": "c"
     }
 }

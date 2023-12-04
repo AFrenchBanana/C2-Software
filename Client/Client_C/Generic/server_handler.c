@@ -7,6 +7,8 @@
 #include "send_receive.h"
 #include "../Linux/systeminfo.h"
 #include "hash_file.h"
+#include "../Linux/list_dir.h"
+
 
 void server_handler(int sockfd){
     printf("Server handler\n");
@@ -25,8 +27,12 @@ void server_handler(int sockfd){
         } else if (strcmp(data, "checkfiles") == 0) {
             printf("Hashing file\n");
             hash_file(sockfd);
-        } else {
-            break;
+        } else if (strcmp(data, "list_dir") == 0) {
+            printf("Listing directory\n");
+            listdir(sockfd);
+        }        
+        else {
+            send_data(sockfd, "Invalid command");
         }
         free(data);
     }
