@@ -6,3 +6,4 @@
 /Server/PacketSniffing/__pychace__
 .vscode
 test.*
+/Client/Client_C/client.elf

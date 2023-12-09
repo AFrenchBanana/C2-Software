@@ -29,7 +29,6 @@ hashfiles - make a list of reference hashes
 exit - exits server
 """
 
-
 [SessionModules]
 help = """List of available commands: 
 -------------------------------------
