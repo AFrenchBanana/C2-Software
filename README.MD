@@ -196,9 +196,12 @@ TLS keys should be the same as the server (these currently do not autogenerate)
 This is still in early syages of development and is not reccomended to be use.
 
 Current working features include:
-1.Full intergration with original python server
+1.Full intergration with original python server.
+
 2. Can be used at the same time as the python client.
+
 3. Sysinfo working 
+
 4. Authentication and SSL implemented.  
 
 
