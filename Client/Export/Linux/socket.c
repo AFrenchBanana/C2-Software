@@ -70,6 +70,7 @@ SSL* ssl_connection() {
         return NULL;
     }
 
+
     puts("Connected to server");
     return ssl;
 }
