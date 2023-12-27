@@ -190,6 +190,7 @@ TLS keys should be the same as the server (these currently do not autogenerate)
 7. Once connected the server checks if this IP is connected to its other socket, if not it will drop the connection. This prevents rogue clients connecting
 7. All data the client recieves is sent to the server.
 8. The server will either write to the file or print to the screen (config depedant)
+<<<<<<< HEAD
 
 ## C Client 
 
@@ -207,3 +208,5 @@ Current working features include:
 
 ## Known bugs
 1. The certificate generator can make files not folders, please ensure any folders exist as directed in the config file
+=======
+>>>>>>> b5947be (Certificate Creation now checks if Dir is a valid)

@@ -44,6 +44,8 @@ class MultiHandler:
         window.log("Checking Certificates")
         if os.path.isfile(self.config['server']['TLSkey']) is False and os.path.isfile(self.config['server']['TLSCertificate']) is False: # checks if certificates are false
             window.log("Generating Certificates")
+            if os.path.isdir(self.config['server']['TLSCertificateDir']) is False:
+                os.mkdir(self.config['server']['TLSCertificateDir'])
             os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {self.config['server']['TLSkey']} -days 365 -out {self.config['server']['TLSCertificate']} -subj '/CN=localhost'") # creates certificate
             print(colorama.Fore.GREEN + f"TLS certificates created:{self.config['server']['TLSkey']} and {self.config['server']['TLSkey']}") # print confirmation message
         return
