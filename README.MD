@@ -205,8 +205,3 @@ Current working features include:
 
 4. Authentication and SSL implemented.  
 
-
-## Known bugs
-1. The certificate generator can make files not folders, please ensure any folders exist as directed in the config file
-=======
->>>>>>> b5947be (Certificate Creation now checks if Dir is a valid)
