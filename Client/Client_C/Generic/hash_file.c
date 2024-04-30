@@ -11,7 +11,6 @@ void hash_file(SSL* ssl){
     unsigned char data[SHA256_DIGEST_LENGTH];
     FILE *fp = fopen(file, "rb");
     if (fp == NULL) {
-        fprintf(stderr, "Error opening file\n");
         return;
     }
     fseek(fp, 0, SEEK_END);
@@ -19,12 +18,10 @@ void hash_file(SSL* ssl){
     fseek(fp, 0, SEEK_SET);
     unsigned char *file_data = malloc(file_size);
     if (file_data == NULL) {
-        fprintf(stderr, "Error allocating memory\n");
         fclose(fp);
         return;
     }
     if (fread(file_data, 1, file_size, fp) != file_size) {
-        fprintf(stderr, "Error reading file\n");
         fclose(fp);
         free(file_data);
         return;
@@ -32,12 +29,8 @@ void hash_file(SSL* ssl){
     fclose(fp);
     sha256(file_data, data);
     free(file_data);
-    printf("Hash: ");
     for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        printf("%02x", data[i]);
     }
-    printf("\n");
     send_data(ssl, file);
     send_data(ssl, data);
-    puts("Hash sent");
 }

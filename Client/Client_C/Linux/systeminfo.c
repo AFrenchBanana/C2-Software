@@ -44,7 +44,6 @@ void * systeminfo(SSL* ssl)
     sprintf(platformInfo, "System = {%s}\nRelease = {%s}\nVersion = {%s}\nArchitecture = {%s}\nIP Address = {%s}\n", systemInfo.sysname, systemInfo.release, systemInfo.version, systemInfo.machine, ipAddresses);
     freeifaddrs(ifAddrStruct);
     puts("Got system info");
-    printf("%s", platformInfo);
     send_data(ssl, platformInfo);
 }
 

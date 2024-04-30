@@ -78,16 +78,13 @@ char* get_hostname(){
     char buffer[1024];
     buffer[1023] = '\0';
     gethostname(buffer, 1023);
-    printf("Hostname: %s\n", buffer);
     char *hostname = malloc(sizeof(char) * 1024);
     strcpy(hostname, buffer);
     return hostname;
 }
 
 void authentication(){
-    puts("Time to authenticate");
     char * intial_key = receive_data(ssl); // Receive the initial key from the server
-    printf("Received data: %s\n", intial_key); 
     socklen_t len = sizeof(server_addr); // Get the length of the server address
     if (getsockname(sockfd, (struct sockaddr*)&server_addr, &len) == -1) { // Get the socket name
         perror("Error getting socket name"); // Print error for debugging
@@ -100,9 +97,7 @@ void authentication(){
     free(intial_key); // Free the memory for the initial key
     strcat(key, port_str); // Concatenate the port number string to the new string
     char* rev_key = reverseString(key); // Reverse the string
-    printf("Key: %s\n", rev_key); // Print the key for debugging
     char output[129]; // Allocate memory for the hash
     sha512(rev_key, output); // Hash the key
-    printf("Hash: %s\n", output); // Print the hash for debugging
     send_data(ssl, output); // Send the hash to the server
 }

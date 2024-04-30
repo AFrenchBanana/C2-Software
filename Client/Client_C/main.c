@@ -22,7 +22,6 @@ int main() {
     while(true) {
         SSL* ssl = ssl_connection();
         if (ssl == NULL) {
-            fprintf(stderr, "Error establishing SSL connection\n");
             return EXIT_FAILURE;
         }
         authentication();
@@ -30,7 +29,6 @@ int main() {
         send_data(ssl, hostname);
         //free(hostname);
         char* sniffer_dummy = receive_data(ssl);
-        printf("Sniffer Reply:  %s\n", sniffer_dummy); // sniffer dummy
         free(sniffer_dummy);
         server_handler(ssl);
         close(SSL_get_fd(ssl));

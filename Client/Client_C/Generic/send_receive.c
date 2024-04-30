@@ -20,11 +20,8 @@ int send_header(SSL* ssl, uint32_t total_length, uint32_t chunk_size) {
     memcpy(buffer, &total_length, sizeof(uint32_t));
     memcpy(buffer + sizeof(uint32_t), &chunk_size, sizeof(uint32_t));
     // Print the bytes
-    printf("Header Bytes: ");
     for (size_t i = 0; i < sizeof(buffer); ++i) {
-        printf("%02X ", (unsigned char)buffer[i]);
     }
-    printf("\n");
     // Send the serialized data
     ssize_t sent_bytes = SSL_write(ssl, buffer, sizeof(buffer));
     if (sent_bytes < 0 || sent_bytes != sizeof(buffer)) {
@@ -102,11 +99,9 @@ char* receive_data(SSL* ssl) {
             return NULL;
         }
         // Print the size using the correct format specifier
-        printf("Received %zd bytes\n", bytes_received);
         // Copy the received chunk to the allocated buffer
         memcpy(received_data + received_bytes, chunk, bytes_received);
         received_bytes += bytes_received;
-        printf("received data: %s\n", received_data);
         // Update total_length within the loop
         total_length -= bytes_received;
     }
