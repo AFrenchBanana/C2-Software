@@ -10,6 +10,7 @@
         "stdbool.h": "c",
         "send_receive.h": "c",
         "systeminfo.h": "c",
-        "hash_file.h": "c"
+        "hash_file.h": "c",
+        "list_dir.h": "c"
     }
 }

@@ -7,20 +7,14 @@ initial file that starts the socket and multi handler
 from Modules.multi_handler import MultiHandler
 import readline
 import colorama
-import sys
-from Modules.GUI import *
-from Modules.global_objects import app, window  
+import sys  
 from Modules.content_handler import TomlFiles
 
 
 if __name__ == '__main__':
   with TomlFiles("config.toml") as file:
     config = file
-  if config['server']['GUI'] == True:
-    window.show()
-    window.log("GUI Started")
   try:
-      window.log("Starting Multi Handler")
       multi_handler = MultiHandler() # starts the multi handler socket
       multi_handler.create_certificate() # checks if certificates are available
       multi_handler.startsocket() # starts the socket

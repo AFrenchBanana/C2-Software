@@ -17,7 +17,7 @@ from Modules.authentication import Authentication
 from Modules.multi_handler_commands import MultiHandlerCommands
 from PacketSniffing.PacketSniffer import PacketSniffer
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, window
+from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails
 
 
 
@@ -33,7 +33,6 @@ class MultiHandler:
         colorama.init(autoreset=True) # resets colours after each print statement
         if self.config['packetsniffer']['active'] == True: # if packetsniffer is enabled start the packet sniffer socket and class
             sniffer = PacketSniffer()
-            window.log("Starting Packet Sniffer")
             sniffer.start_raw_socket()
         
 
@@ -41,9 +40,7 @@ class MultiHandler:
     def create_certificate(self):
         """checks if TLS certificates are created in the location defined in config.toml.
         If these don't exist, a self signed key and certificate is made."""
-        window.log("Checking Certificates")
         if os.path.isfile(self.config['server']['TLSkey']) is False and os.path.isfile(self.config['server']['TLSCertificate']) is False: # checks if certificates are false
-            window.log("Generating Certificates")
             if os.path.isdir(self.config['server']['TLSCertificateDir']) is False:
                 os.mkdir(self.config['server']['TLSCertificateDir'])
             os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {self.config['server']['TLSkey']} -days 365 -out {self.config['server']['TLSCertificate']} -subj '/CN=localhost'") # creates certificate

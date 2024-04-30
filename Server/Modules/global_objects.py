@@ -8,7 +8,6 @@ Contains error handled send and recieve functions that can handle bytes and stri
 
 import struct
 from tqdm import tqdm
-from Modules.GUI import *
 import sys
 
 #global socket details to alllow multiple connections and the ability
@@ -16,9 +15,6 @@ import sys
 connectionaddress = []
 connectiondetails = []
 hostname = []
-
-app = QApplication(sys.argv)
-window = MainWindow()
 
 
 
