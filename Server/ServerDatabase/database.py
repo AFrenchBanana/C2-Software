@@ -41,9 +41,13 @@ class DatabaseClass:
         """SQL Query to insert data into a table.
         Example: insert_entry(Connections, "123")"""
         if self.config['database']['addData'] == True:
-            table_query = f"INSERT INTO {table} VALUES ({values})" # sql query to insert data
-            self.cursor.execute(table_query) # executes the table query
-            self.dbconnection.commit() #commits the data
+            try:
+                table_query = f"INSERT INTO {table} VALUES ({values})" # sql query to insert data
+                self.cursor.execute(table_query) # executes the table query
+                self.dbconnection.commit() #commits the data
+            except:
+                if not self.config["server"]["quiet_mode"]:
+                    print("Error inserting into database")
         return
         
 

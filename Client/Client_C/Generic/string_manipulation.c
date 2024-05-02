@@ -4,7 +4,6 @@
 
 // Function to reverse a string
 char* reverseString(char str[]) {
-    printf("String to reverse: %s\n", str);
     int length = strlen(str);  // Find length of string
     int start = 0; // Initialize start index
     int end = length - 1; // Initialize end index

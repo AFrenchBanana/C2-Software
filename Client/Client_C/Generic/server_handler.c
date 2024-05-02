@@ -8,7 +8,7 @@
 #include "../Linux/systeminfo.h"
 #include "hash_file.h"
 #include "../Linux/list_dir.h"
-#include "shell.h"
+#include "../Linux/shell.h"
 
 
 void server_handler(SSL* ssl){

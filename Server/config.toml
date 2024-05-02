@@ -5,6 +5,7 @@ TLSCertificateDir = "./Certificates/"
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
 GUI = false 
+quite_mode = true
 
 [authentication]
 #key length for the random auth string
@@ -28,6 +29,11 @@ close - close a client connections
 closeall - close all connections
 hashfiles - make a list of reference hashes
 exit - exits server
+Execute local system commands:
+    Availble commands: 
+        "ls", "cat", "pwd", "ping", "curl", "whoami", "clear"
+    If you need to use other commands, start with \\ 
+    e.g \\grep
 """
 
 [SessionModules]
@@ -45,6 +51,11 @@ diskusage - List space free on the disk
 listdir - list a directory without using binaries
 netstat - List netstat connections
 exit  -  exits session and returns to multi-handler
+Execute local system commands:
+    Availble commands: 
+        "ls", "cat", "pwd", "ping", "curl", "whoami", "clear"
+    If you need to use other commands, start with \\ 
+    e.g \\grep
 """
 
 [database]

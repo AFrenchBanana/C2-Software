@@ -7,7 +7,7 @@ this allows for multiple connections to be interacted with.
 from Modules.sessions_commands import SessionCommandsClass
 from Modules.content_handler import TomlFiles
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname
+from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands 
 import hashlib
 import os
 import tqdm
@@ -61,7 +61,7 @@ class MultiHandlerCommands:
                     self.sessioncommands.diskusage(conn, r_address)
                 elif command == "listdir":
                     self.sessioncommands.list_dir(conn, r_address)
-                else:
+                elif not execute_local_comands(command):
                     print((colorama.Fore.GREEN + self.config['SessionModules']['help']))
             except (KeyError, SyntaxError, AttributeError):
                 print((colorama.Fore.GREEN + self.config['SessionModules']['help'])) #if the command is not matched then it prints help menu

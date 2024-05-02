@@ -1,6 +1,6 @@
 from ServerDatabase.database import DatabaseClass
 from Modules.content_handler import TomlFiles
-from Modules.global_objects import send_data, receive_data, remove_connection_list, send_data_loadingbar
+from Modules.global_objects import send_data, receive_data, remove_connection_list, send_data_loadingbar, execute_local_comands
 from datetime import datetime
 from tqdm import tqdm
 import os
@@ -42,16 +42,16 @@ class SessionCommandsClass:
         details = receive_data(conn) # get the current working directory and username of the client
         username, cwd = details.split("<sep>") # splits the data based on the seperator
         while True:
-            command = input(f"{username}@{r_address[0]}:{r_address[1]}-[{cwd}]") # ask for user command
+            command = input(f"{username}@{r_address[0]}:{r_address[1]}-[{cwd}]: ") # ask for user command
             if not command.strip(): 
                 continue
             send_data(conn, command) # send the command to the client
             if command.lower() == "exit": # check if the command is exit
                 break
             output = receive_data(conn)  # sets output based on recieved data
-            results, cwd = output.split("<sep>") # splits the working directory and result
-            print(results) # prints result
+            results, _, cwd = output.rpartition("<sep>")# splits the working directory and result
             self.database.insert_entry("Shell", f"'{r_address[0]}','{datetime.now()}', '{command}', '{results}'") # adds to database
+            print(results) # prints result
         return
 
 

@@ -9,6 +9,7 @@ Contains error handled send and recieve functions that can handle bytes and stri
 import struct
 from tqdm import tqdm
 import sys
+import os
 
 #global socket details to alllow multiple connections and the ability
 #to interact with them individually.
@@ -99,4 +100,13 @@ def send_data_loadingbar(conn, data):
             conn.sendall(chunk) #if the data cant be encoded sent it as it is. 
     return
 
-
+def execute_local_comands(value):
+    if value.lower().startswith(("ls", "cat", "pwd", "ping", "curl", "whoami", "\\", "clear")): # common commands 
+        if value.startswith("\\"): # other commands
+            value = value.replace("\\", "")
+        os.system(value)
+        return True
+    else:
+        return None
+                
+    

@@ -17,7 +17,7 @@ from Modules.authentication import Authentication
 from Modules.multi_handler_commands import MultiHandlerCommands
 from PacketSniffing.PacketSniffer import PacketSniffer
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails
+from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, execute_local_comands
 
 
 
@@ -113,7 +113,7 @@ class MultiHandler:
                     self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
                 elif command == "hashfiles":
                     self.multihandlercommands.localDatabaseHash()
-                else: # else print help message
+                elif not execute_local_comands(command):
                     print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
             except (KeyError, SyntaxError, AttributeError):
                 print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
