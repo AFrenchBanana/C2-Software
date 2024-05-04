@@ -37,6 +37,8 @@ if __name__ == '__main__':
       CCC::::::::::::C2::::::::::::::::::2
         CCCCCCCCCCCCC22222222222222222222
   """)
+      else: 
+        print(colorama.Back.RED + "Quiet Mode On")
       print(colorama.Back.GREEN + "Type Help for available commands")
       multi_handler.multi_handler() # starst the milti handler
   except ValueError: # handles keyboard interpt

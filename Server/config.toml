@@ -9,7 +9,7 @@ quite_mode = true
 
 [authentication]
 #key length for the random auth string
-keylength = 75
+keylength = 100
 
 [packetsniffer]
 active = false
@@ -18,7 +18,6 @@ port = 11001
 TLSCertificate = "./Certificates/cert.pem"
 TLSkey = "./Certificates/key.pem"
 debugPrint = true
-
 
 [MultiHandlerCommands]
 help = """List of available commands: 
@@ -29,6 +28,7 @@ close - close a client connections
 closeall - close all connections
 hashfiles - make a list of reference hashes
 exit - exits server
+config - shows current config variables
 Execute local system commands:
     Availble commands: 
         "ls", "cat", "pwd", "ping", "curl", "whoami", "clear"

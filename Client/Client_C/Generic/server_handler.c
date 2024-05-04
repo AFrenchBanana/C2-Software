@@ -26,6 +26,7 @@ void server_handler(SSL* ssl){
         } else if (strcmp(data, "systeminfo") == 0) {
             systeminfo(ssl);
         } else if (strcmp(data, "checkfiles") == 0) {
+            puts(data);
             hash_file(ssl);
         } else if (strcmp(data, "list_dir") == 0) {
             printf("Listing directory\n");
