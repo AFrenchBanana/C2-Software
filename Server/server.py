@@ -18,7 +18,7 @@ if __name__ == '__main__':
       multi_handler = MultiHandler() # starts the multi handler socket
       multi_handler.create_certificate() # checks if certificates are available
       multi_handler.startsocket() # starts the socket
-      if not config['server']['quite_mode']:
+      if not config['server']['quiet_mode']:
         print(colorama.Fore.CYAN + """
         CCCCCCCCCCCCC 222222222222222    
       CCC::::::::::::C2:::::::::::::::22  

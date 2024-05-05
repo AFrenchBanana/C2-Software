@@ -7,12 +7,13 @@ this allows for multiple connections to be interacted with.
 from Modules.sessions_commands import SessionCommandsClass
 from Modules.content_handler import TomlFiles
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands 
+from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands, send_data, receive_data
 import hashlib
 import os
 import tqdm
 import colorama
-
+import socket
+import readline
 
 class MultiHandlerCommands:
     """ class with  multihandler commands, each multi handler can call the class and have access to the commands"""
@@ -25,13 +26,19 @@ class MultiHandlerCommands:
         colorama.init(autoreset=True) # resets colorama after each statement
         return
 
-    
+    def variable_completer_currentclient(self, text, state) -> str:
+        variables = ["shell", "close", "processes", "sysinfo", "close", "checkfiles", "download", "upload", "services", "netstat", "diskusage", "listdir"]
+        options = [var for var in variables if var.startswith(text)]
+        return options[state] if state < len(options) else None
+        
     def current_client(self, conn, r_address) -> None:
         """function that interacts with an individual session, from here commands on the target can be run as documented in the config
         the functions are stored in the SessionCommands.py file"""
         #available_commands = WordCompleter(['shell', 'close', 'processes', 'sysinfo', 'close', 'checkfiles', 'download', 'upload', 'services', 'netstat', 'diskusage', 'listdir'])
         while True: 
             colorama.init(autoreset=True) # resets colorama after each statement
+            readline.parse_and_bind("tab: complete")
+            readline.set_completer(lambda text, state: self.variable_completer_currentclient(text, state))
             command = (input(colorama.Fore.YELLOW + f"{r_address[0]}:{r_address[1]} Command: ").lower()) # asks uses for command
             if command == "exit": # exits back to multihandler menu
                 break
@@ -101,13 +108,28 @@ class MultiHandlerCommands:
     
     def close_all_connections(self, connection_details, connection_address) -> None:
         """close all connections and remove the details from the lists in global objects"""
+        error = False
         for i, conn in enumerate(connection_details): # takes each connection 
-            self.sessioncommands.close_connection(conn, connection_address[i]) #closes the connection
-        #clears the lists
+            try:
+                send_data(conn, "shutdown")
+                if receive_data(conn) == "ack":
+                    conn.shutdown(socket.SHUT_RDWR) # shutdown the SSL socket
+                    conn.close() # closes connection
+                if not self.config["server"]["quiet_mode"]:
+                    print(colorama.Back.GREEN + f"Closed {connection_address[i]}") # user message
+            except Exception as e: #handles ssl.SSLEOFError
+                if not self.config["server"]["quiet_mode"]:
+                    print(colorama.Back.RED + f"Error Closing + {connection_address[i]}") # user message
+                    print(colorama.Back.RED + str(e))
+                error = True
+                pass
         connectionaddress.clear() 
         connectiondetails.clear()
         hostname.clear()
-        print(colorama.Back.GREEN + "All connections closed") # user message
+        if not error:
+            print(colorama.Back.GREEN + "All connections closed") # user message
+        else: 
+            print(colorama.Back.RED + f"Not all connections could be closed")
         return
 
 

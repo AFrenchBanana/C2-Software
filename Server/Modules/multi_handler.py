@@ -11,8 +11,7 @@ import threading
 import os
 import sys
 import colorama
-from prompt_toolkit import prompt
-from prompt_toolkit.completion import WordCompleter
+import readline 
 from datetime import datetime
 from Modules.content_handler import TomlFiles
 from Modules.authentication import Authentication
@@ -22,7 +21,7 @@ from ServerDatabase.database import DatabaseClass
 from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, execute_local_comands
 
 class MultiHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         """main function that starts the socket server, threads the socket.start() as a daemon to allow multiple connections, it starts the database for the main thread 
         it then runs the multihandler function"""
         with TomlFiles("config.toml") as f:
@@ -35,24 +34,24 @@ class MultiHandler:
             sniffer = PacketSniffer()
             sniffer.start_raw_socket()
         
-    def create_certificate(self):
+    def create_certificate(self) -> None:
         """checks if TLS certificates are created in the location defined in config.toml.
         If these don't exist, a self signed key and certificate is made."""
-        if os.path.isfile(self.config['server']['TLSkey']) is False and os.path.isfile(self.config['server']['TLSCertificate']) is False: # checks if certificates are false
+        if not os.path.isfile(os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])) and not os.path.isfile(os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])): # checks if certificates do not exist
             if os.path.isdir(self.config['server']['TLSCertificateDir']) is False:
                 os.mkdir(self.config['server']['TLSCertificateDir'])
-            os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {self.config['server']['TLSkey']} -days 365 -out {self.config['server']['TLSCertificate']} -subj '/CN=localhost'") # creates certificate
-            print(colorama.Fore.GREEN + f"TLS certificates created:{self.config['server']['TLSkey']} and {self.config['server']['TLSkey']}") # print confirmation message
+            os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])} -days 365 -out {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])} -subj '/CN=localhost'") # creates certificate
+            print(colorama.Fore.GREEN + f"TLS certificates created:{os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])} and {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])}") # print confirmation message
         return
 
-    def startsocket(self):
+    def startsocket(self) -> None:
         """starts a TLS socket and threads the accept connection to allow multiple connections"""
         global SSL_Socket, socket_clear
         #sets the listen address based off the config file variables
         self.address = self.config['server']['listenaddress'], self.config['server']['port']
         #loads context to allow the socket to be wrapped in SSL
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=self.config['server']['TLSCertificate'], keyfile=self.config['server']['TLSkey'])
+        context.load_cert_chain(certfile=os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate']), keyfile=os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey']))
         socket_clear = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
         # tries to bind the socket to an address
@@ -68,7 +67,7 @@ class MultiHandler:
         listenerthread.start() #start the thread
         return
     
-    def accept_connection(self):
+    def accept_connection(self) -> None:
         """Function that listens for connections and handles them, by calling connection_list() to make them referencable.
         The database is initalised and then when a new connection is recieved the details are inserted to the database table addresses
         Ideally run as a deamon thread to allow any connections to input."""
@@ -77,24 +76,33 @@ class MultiHandler:
         while True:
             conn, r_address = SSL_Socket.accept() #accepts the connection
             send_data(conn, self.Authentication.get_authentication_string())
-            if(self.Authentication.test_auth(receive_data(conn), r_address[1])) == True:
+            if (self.Authentication.test_auth(receive_data(conn), r_address[1])):
                 hostname = receive_data(conn)
                 send_data(conn, str(self.config['packetsniffer']['active'])) #send if sniffer occurs
-                if self.config['packetsniffer']['active'] == True:
+                if self.config['packetsniffer']['active']:
                     send_data(conn, str(self.config['packetsniffer']['port'])) # send port number
                 add_connection_list(conn, r_address, hostname) #adds the connection to the lists
                 threadDB.insert_entry("Addresses", f'"{r_address[0]}", "{r_address[1]}", "{hostname}", "{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # adds the IP address to the database
             else:
                 conn.close() 
+            
                 
-    def multi_handler(self): 
+    def variable_completer_multihandler(self, text, state) -> str:
+        variables = ["list", "sessions", "close", "closeall", "hashfiles", "config", "help", "exit"]
+        options = [var for var in variables if var.startswith(text)]
+        return options[state] if state < len(options) else None
+    
+
+    def multi_handler(self) -> None: 
     #multi handler function that allows a user to interact with the sessions.
         #available_commands = WordCompleter(['list', 'sessions', 'close', 'closeall', 'hashfiles', 'config', 'help', 'exit'])
         print(colorama.Fore.YELLOW + f"Awaiting connection on port {self.address[0]}:{self.address[1]}") #feedback showing what address the server is listenign on
-        if self.config['packetsniffer']['active'] == True:
+        if self.config['packetsniffer']['active']:
             print(colorama.Back.GREEN + (f"PacketSniffing active on port {self.config['packetsniffer']['port']}"))
         while True: # Loop that lists active connections an allows user to interact with a session
-            command = input("MutiHandler: ").lower()
+            readline.parse_and_bind("tab: complete")
+            readline.set_completer(lambda text, state: self.variable_completer_multihandler(text, state))
+            command = input("MultiHandler: ").lower()
             if command == "exit": # closes the server down
                 print(colorama.Fore.RED + f"Closing connections")
                 break # exits the multihandler
@@ -113,7 +121,7 @@ class MultiHandler:
                     self.multihandlercommands.showconfig()
                 elif not execute_local_comands(command):
                     print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
-            except (KeyError, SyntaxError, AttributeError):
+            except (KeyError, SyntaxError, AttributeError) as e:
                 print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
         return      
 

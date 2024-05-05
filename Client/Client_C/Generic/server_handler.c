@@ -20,6 +20,7 @@ void server_handler(SSL* ssl){
         }
         if (strcmp(data, "shutdown") == 0) {
             free(data);
+            send_data(ssl, "ack");
             SSL_shutdown(ssl);
             SSL_free(ssl);
             exit(0);
