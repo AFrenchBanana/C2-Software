@@ -37,7 +37,7 @@ if __name__ == '__main__':
     else: 
       print(colorama.Back.RED + "Quiet Mode On")
     print(colorama.Back.GREEN + "Type Help for available commands")
-    multi_handler.multi_handler() # starst the milti handler
+    multi_handler.multi_handler(config) # starst the milti handler
   except ValueError: # handles keyboard interpt
       print("\n use exit next time")
       try:

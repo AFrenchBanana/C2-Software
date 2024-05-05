@@ -88,7 +88,7 @@ class MultiHandler:
                 conn.close() 
              
 
-    def multi_handler(self) -> None: 
+    def multi_handler(self, config: dict) -> None: 
     #multi handler function that allows a user to interact with the sessions.
         #available_commands = WordCompleter(['list', 'sessions', 'close', 'closeall', 'hashfiles', 'config', 'help', 'exit'])
         print(colorama.Fore.YELLOW + f"Awaiting connection on port {self.address[0]}:{self.address[1]}") #feedback showing what address the server is listenign on
@@ -101,23 +101,23 @@ class MultiHandler:
             if command == "exit": # closes the server down
                 print(colorama.Fore.RED + f"Closing connections")
                 break # exits the multihandler
-            #try: # tries to execute from known commands
-            if command == "list":
-                self.multihandlercommands.listconnections(connectionaddress)
-            elif command == "sessions":
-                self.multihandlercommands.sessionconnect(connectiondetails, connectionaddress)
-            elif command == "close":
-                self.multihandlercommands.close_from_multihandler(connectiondetails, connectionaddress)
-            elif command == "closeall":
-                self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
-            elif command == "hashfiles":
-                self.multihandlercommands.localDatabaseHash()
-            elif command == "config":
-                config_menu()
-            elif not execute_local_comands(command):
+            try: # tries to execute from known commands
+                if command == "list":
+                    self.multihandlercommands.listconnections(connectionaddress)
+                elif command == "sessions":
+                    self.multihandlercommands.sessionconnect(connectiondetails, connectionaddress)
+                elif command == "close":
+                    self.multihandlercommands.close_from_multihandler(connectiondetails, connectionaddress)
+                elif command == "closeall":
+                    self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
+                elif command == "hashfiles":
+                    self.multihandlercommands.localDatabaseHash()
+                elif command == "config":
+                    config_menu()
+                elif not execute_local_comands(command):
+                    print(config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
+            except (KeyError, SyntaxError, AttributeError) as e:
                 print(config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
-            #except (KeyError, SyntaxError, AttributeError) as e:
-                #print(config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
         return      
 
     

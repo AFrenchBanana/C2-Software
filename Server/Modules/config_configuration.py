@@ -1,4 +1,6 @@
 import readline
+from typing import Tuple
+
 from Modules.content_handler import TomlFiles
 from Modules.global_objects import tab_compeletion
 
@@ -16,8 +18,8 @@ def config_menu() -> None:
         if inp == "2":
             edit_config()
         if inp == "3":
-            break
-    return
+            return
+
 
 
 def show_config() -> None:
@@ -33,8 +35,8 @@ def show_config() -> None:
     
 
     
-def edit_config() -> None: 
-    main_keys = ["server", "authentication", "packetsniffer"]
+def edit_config() -> bool: 
+    main_keys = ["server", "authentication", "packetsniffer", "exit"]
     server_keys = ["listenaddress", "port", "TLSCertificateDir", "TLSCertificate", "TLSkey", "GUI", "quiet_mode"]
     authentication_keys = ["keylength"]
     packetsniffer_keys = ["active", "listenaddress", "port", "TLSCertificate", "TLSKey", "debugPrint"]
@@ -44,11 +46,13 @@ def edit_config() -> None:
             readline.parse_and_bind("tab: complete")
             readline.set_completer(lambda text, state: tab_compeletion(text, state, main_keys))
             key = input("Enter key: ")
+            if key == "exit":
+                return False
             if key not in main_keys:
                 print("Not a valid key")
-                continue
+                pass
             if key == "server":
-                readline.parse_and_bind("tab: complete")
+                readline.parse_and_bind("tab: cowmplete")
                 readline.set_completer(lambda text, state: tab_compeletion(text, state, server_keys))
             elif key == "authentication":
                 readline.parse_and_bind("tab: complete")
@@ -59,17 +63,31 @@ def edit_config() -> None:
             subkey = input("Enter sub-key to change: ")
             if subkey not in config[key]:
                 print("Invalid subkey")
-                continue
+                pass
             print("Current value: ", config[key][subkey])
             new_value = input("Enter new value: ")
-            if isinstance(config[key][subkey], bool) and new_value.lower() not in ["true", "false"]:
-                print("Invalid value. Please enter true or false")
-            elif isinstance(config[key][subkey], int) and not new_value.isdigit():
-                print("Invalid value. Please enter a number")
+            if isinstance(config[key][subkey], bool):
+                if new_value.lower() not in ["true", "false"]:
+                    print("Invalid value. Please enter true or false")
+                else:
+                    update = True
+                    if new_value.lower() == "true":
+                        new_value = True
+                    else:
+                        new_value = False
+            elif isinstance(config[key][subkey], int):
+                if not new_value.isdigit():
+                    print("Invalid value. Please enter a number") 
+                else:
+                    update = True
+                    new_value = int(new_value)                
             elif subkey == "listenaddress" and not new_value.replace(".", "").isdigit():
                 print("Invalid value. Please enter a valid IP address")
             else:
+                update = True
+            if update:
                 toml_file.update_config(key, subkey, new_value)
                 print("Changes saved successfully!")
-                break  # Exit the loop after successful update
+                print("Restart the server to apply changes.")
+                return True
                 

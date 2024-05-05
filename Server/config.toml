@@ -9,7 +9,7 @@ quiet_mode = true
 
 [authentication]
 #key length for the random auth string
-keylength = 100
+keylength = 111
 
 [packetsniffer]
 active = false
