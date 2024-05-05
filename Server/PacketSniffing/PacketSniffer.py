@@ -18,7 +18,7 @@ class PacketSniffer:
     """Packet Sniffer function, can intercept packets on a raw socket"""
     def __init__(self):
         with TomlFiles("config.toml") as f: # loads the config files
-            self.config = f
+            config = f
             #loads global variables
         global snifferdetails, snifferaddress
         snifferdetails = []
@@ -27,10 +27,10 @@ class PacketSniffer:
     def start_raw_socket(self):
         """starts a raw socket wrapped in SSL"""
         global SSL_Socket
-        self.address = self.config['packetsniffer']['listenaddress'], self.config['packetsniffer']['port'] # gets the address from the config
+        self.address = config['packetsniffer']['listenaddress'], config['packetsniffer']['port'] # gets the address from the config
         #sets the context for the SSl Socket
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=self.config['packetsniffer']['TLSCertificate'], keyfile=self.config['packetsniffer']['TLSkey'])
+        context.load_cert_chain(certfile=config['packetsniffer']['TLSCertificate'], keyfile=config['packetsniffer']['TLSkey'])
         socket_clear = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
         try:
@@ -69,7 +69,7 @@ class PacketSniffer:
         i = int(i) # reference for list
         sudo = str(snifferdetails[i].recv(8).decode()) # checks if sudo is enabled
         if sudo == "0": # if sudo is enabled on client
-            if self.config['packetsniffer']['debugPrint'] == True: # if packet sniffer logging is on config
+            if config['packetsniffer']['debugPrint'] == True: # if packet sniffer logging is on config
                 while True:
                     try:
                         packetbyte = 0

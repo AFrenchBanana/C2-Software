@@ -1,24 +1,25 @@
 from ServerDatabase.database import DatabaseClass
 from Modules.content_handler import TomlFiles
-from Modules.global_objects import send_data, receive_data, remove_connection_list, send_data_loadingbar, execute_local_comands
+from Modules.global_objects import send_data, receive_data, remove_connection_list, send_data_loadingbar, execute_local_comands, config
 from datetime import datetime
 from tqdm import tqdm
+from typing import Tuple
+
 import os
 import colorama
-import time
+import ssl 
+
 
 
 class SessionCommandsClass:
     """Handles commands within a session"""
     def __init__(self) -> None:
-        with TomlFiles("config.toml") as f:
-            self.config = f # loads config
         self.database = DatabaseClass() # laods database class
         colorama.init(autoreset=True) # resets colorama after each function
         
 
 
-    def close_connection(self, conn, r_address):
+    def close_connection(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """closes connection from the current session within the session commands"""
         #confirmation to close connection
         if input(colorama.Back.RED + "Are you sure want to close the connection?: Y/N ").lower() == "y": 
@@ -35,7 +36,7 @@ class SessionCommandsClass:
         return
     
 
-    def shell(self, conn, r_address):
+    def shell(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """runs a shell between the sessions client and server"""
         print(f"Shell {r_address[0]}:{r_address[1]}: Type exit to quit session") 
         send_data(conn, "shell") # calls the shell command on the client
@@ -55,7 +56,7 @@ class SessionCommandsClass:
         return
 
 
-    def list_processes(self, conn, r_address):
+    def list_processes(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """list processes running on client"""
         send_data(conn, "list_processes") # calls the list processes command on client
         processes = receive_data(conn) # recieves results
@@ -64,7 +65,7 @@ class SessionCommandsClass:
         return
 
 
-    def systeminfo(self, conn, r_address):
+    def systeminfo(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """gets the systeminfo of the client"""
         send_data(conn,"systeminfo") # sends the system info command to start the process
         data = receive_data(conn) # recives data 
@@ -73,7 +74,7 @@ class SessionCommandsClass:
         return
     
 
-    def checkfiles(self, conn):
+    def checkfiles(self, conn: ssl.SSLSocket) -> None:
         """checks files against known hashes in the database """
         send_data(conn,"checkfiles") # call the check files function on the client 
         send_data(conn, input("What File do you want to check? ")) # ask what files wants to be checked
@@ -109,7 +110,7 @@ class SessionCommandsClass:
         return
 
         
-    def DownloadFiles(self, conn):
+    def DownloadFiles(self, conn: ssl.SSLSocket) -> None:
         """ Function downloads a files from the client to the server"""
         send_data(conn, "send_file") # calls the send files function on the client
         filename = input("What file do you want to download? ") # asks what file the user wants to download
@@ -128,7 +129,7 @@ class SessionCommandsClass:
         return
 
 
-    def UploadFiles(self, conn):
+    def UploadFiles(self, conn: ssl.SSLSocket) -> None:
         """upload files from the server to the client"""
         send_data(conn, "recv_file") #call teh recv_file funciton on the client
         filename = input("What file do you want to upload? ") # ask what file to upload
@@ -156,7 +157,7 @@ class SessionCommandsClass:
         return
 
 
-    def list_services(self, conn, r_address):
+    def list_services(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """lists services on the client"""
         send_data(conn, "list_services") # calls list_services function on the client
         services = receive_data(conn) # recieve the services
@@ -165,7 +166,7 @@ class SessionCommandsClass:
         return
 
 
-    def netstat(self, conn, r_address):
+    def netstat(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """prints netstat details from the client"""
         netstat = "" # intialises variable
         send_data(conn, "netstat") # calls netstat function on the client side
@@ -179,7 +180,7 @@ class SessionCommandsClass:
         return
 
 
-    def diskusage(self, conn, r_address):
+    def diskusage(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """prints the diskuage for the client"""
         send_data(conn, "disk_usage") #calls the disk_usuage function on the client
         results = receive_data(conn) # saves the results
@@ -187,7 +188,7 @@ class SessionCommandsClass:
         print(colorama.Fore.YELLOW + results) # prints results
 
 
-    def list_dir(self, conn, r_address):
+    def list_dir(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """list a directory on the client"""
         send_data(conn, "list_dir") #calls the list_dir function on the clietn
         dir = input("What directory do you want to list?: ") # ask what directory to list

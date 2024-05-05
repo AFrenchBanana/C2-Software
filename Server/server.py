@@ -3,23 +3,20 @@
 """
 initial file that starts the socket and multi handler
 """
-
-from Modules.multi_handler import MultiHandler
 import readline
 import colorama
 import sys  
-from Modules.content_handler import TomlFiles
 
+from Modules.multi_handler import MultiHandler
+from Modules.global_objects import config
 
 if __name__ == '__main__':
-  with TomlFiles("config.toml") as file:
-    config = file
   try:
-      multi_handler = MultiHandler() # starts the multi handler socket
-      multi_handler.create_certificate() # checks if certificates are available
-      multi_handler.startsocket() # starts the socket
-      if not config['server']['quiet_mode']:
-        print(colorama.Fore.CYAN + """
+    multi_handler = MultiHandler() # starts the multi handler socket
+    multi_handler.create_certificate() # checks if certificates are available
+    multi_handler.startsocket() # starts the socket
+    if not config['server']['quiet_mode']:
+      print(colorama.Fore.CYAN + """
         CCCCCCCCCCCCC 222222222222222    
       CCC::::::::::::C2:::::::::::::::22  
     CC:::::::::::::::C2::::::222222:::::2 
@@ -37,10 +34,10 @@ if __name__ == '__main__':
       CCC::::::::::::C2::::::::::::::::::2
         CCCCCCCCCCCCC22222222222222222222
   """)
-      else: 
-        print(colorama.Back.RED + "Quiet Mode On")
-      print(colorama.Back.GREEN + "Type Help for available commands")
-      multi_handler.multi_handler() # starst the milti handler
+    else: 
+      print(colorama.Back.RED + "Quiet Mode On")
+    print(colorama.Back.GREEN + "Type Help for available commands")
+    multi_handler.multi_handler() # starst the milti handler
   except ValueError: # handles keyboard interpt
       print("\n use exit next time")
       try:

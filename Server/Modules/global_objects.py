@@ -6,10 +6,12 @@ and the ability alter them.
 Contains error handled send and recieve functions that can handle bytes and strings
 """
 
+from Modules.content_handler import TomlFiles
 import struct
 from tqdm import tqdm
-import sys
+from typing import Tuple
 import os
+import ssl
 
 #global socket details to alllow multiple connections and the ability
 #to interact with them individually.
@@ -18,8 +20,10 @@ connectiondetails = []
 hostname = []
 
 
+with TomlFiles("config.toml") as f:
+    config = f
 
-def add_connection_list(conn, r_address, host):
+def add_connection_list(conn: ssl.SSLSocket, r_address: Tuple[str, int] , host: str) -> None:
     """this function places the connection details into 3 lists, one for each variable upon succesful socket connection
     this allows the connection to be accessed from anywhere within the server"""
     connectiondetails.append(conn) # the socket connection details
@@ -28,7 +32,7 @@ def add_connection_list(conn, r_address, host):
     return
 
 
-def remove_connection_list(r_address):
+def remove_connection_list(r_address: Tuple[str, int]) -> None:
     """removes connection from all list.
     loops through the known connections and if it matches removes it"""
     for i, item in enumerate(connectionaddress):# loops through connectionaddress list
@@ -39,7 +43,7 @@ def remove_connection_list(r_address):
     return
          
 
-def send_data(conn, data):
+def send_data(conn: ssl.SSLSocket, data: any)-> None:
     """function that sends data across a socket,
     socket connection and data gets fed in, the length of data is then calculated.
     the socket sends a header file packed with struct that sends the total length and chunk size
@@ -59,7 +63,7 @@ def send_data(conn, data):
     return
 
 
-def receive_data(conn):
+def receive_data(conn: ssl.SSLSocket) -> str | bytes:
     """function that recieves data
     first the header is recieved with the chunk size and total length
     after this it recieves data in the chunk size until the last packet where it is the remaining length"""
@@ -79,8 +83,7 @@ def receive_data(conn):
     return received_data
 
 
-
-def send_data_loadingbar(conn, data):
+def send_data_loadingbar(conn: ssl.SSLSocket, data: any) -> None:
     """function that sends data across a socket,
     socket connection and data gets fed in, the length of data is then calculated.
     the socket sends a header file packed with struct that sends the total length and chunk size
@@ -100,7 +103,8 @@ def send_data_loadingbar(conn, data):
             conn.sendall(chunk) #if the data cant be encoded sent it as it is. 
     return
 
-def execute_local_comands(value):
+def execute_local_comands(value: str) -> bool:
+    """function that allows for the execution of local commands server side"""
     if value.lower().startswith(("ls", "cat", "pwd", "ping", "curl", "whoami", "\\", "clear")): # common commands 
         if value.startswith("\\"): # other commands
             value = value.replace("\\", "")
@@ -108,5 +112,9 @@ def execute_local_comands(value):
         return True
     else:
         return None
-                
-    
+
+
+def tab_compeletion(text: str, state: int, variables: list) -> str:
+    """function that allows for tab completion in the config menu"""
+    options = [var for var in variables if var.startswith(text)]
+    return options[state] if state < len(options) else None

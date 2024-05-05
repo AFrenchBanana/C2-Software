@@ -1,17 +1,27 @@
 """
 content handler for loading different types of files into
 """
-from toml import load
+from toml import load, dump
 
 class TomlFiles:
-    """loads a toml file and returns the value as self.data"""
-    def __init__(self, filename):
-        self.__fn = open(filename,"rt", encoding="utf-8")
-        self.__data = load(self.__fn)
+  """Loads a TOML file and provides methods for updating and saving."""
 
-    def __enter__(self):
-        return self.__data
+  def __init__(self, filename: str) -> None:
+    self.filename = filename
+    with open(filename, "rt", encoding="utf-8") as f:
+      self.data = load(f)
 
-    def __exit__(self, tipe, value, traceback):
-        self.__fn.close()
+  def __enter__(self) -> dict:
+    return self.data
 
+  def __exit__(self, tipe, value, traceback):
+    pass  # No need to close the file in this approach
+
+  def update_config(self, key: str, subkey: str, new_value) -> None:
+      """Updates the value at the specified key and subkey."""
+      self.data[key][subkey] = new_value
+
+  def save(self) -> None:
+    """Saves the updated data to the TOML file."""
+    with open(self.filename, 'wt', encoding='utf-8') as f:
+      dump(self.data, f)

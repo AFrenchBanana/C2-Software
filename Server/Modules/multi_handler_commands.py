@@ -7,38 +7,35 @@ this allows for multiple connections to be interacted with.
 from Modules.sessions_commands import SessionCommandsClass
 from Modules.content_handler import TomlFiles
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands, send_data, receive_data
+from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands, send_data, receive_data, config, tab_compeletion
+
+from typing import Tuple
+
 import hashlib
 import os
 import tqdm
 import colorama
 import socket
 import readline
+import ssl
 
 class MultiHandlerCommands:
     """ class with  multihandler commands, each multi handler can call the class and have access to the commands"""
     # loads the config file into memory
     def __init__(self) -> None:
-        with TomlFiles("config.toml") as f:
-            self.config = f
         self.sessioncommands = SessionCommandsClass() # loads session command class
         self.database = DatabaseClass() # loads database class
         colorama.init(autoreset=True) # resets colorama after each statement
         return
-
-    def variable_completer_currentclient(self, text, state) -> str:
-        variables = ["shell", "close", "processes", "sysinfo", "close", "checkfiles", "download", "upload", "services", "netstat", "diskusage", "listdir"]
-        options = [var for var in variables if var.startswith(text)]
-        return options[state] if state < len(options) else None
         
-    def current_client(self, conn, r_address) -> None:
+    def current_client(self, conn: ssl.SSLSocket, r_address: Tuple[str, int]) -> None:
         """function that interacts with an individual session, from here commands on the target can be run as documented in the config
         the functions are stored in the SessionCommands.py file"""
         #available_commands = WordCompleter(['shell', 'close', 'processes', 'sysinfo', 'close', 'checkfiles', 'download', 'upload', 'services', 'netstat', 'diskusage', 'listdir'])
         while True: 
             colorama.init(autoreset=True) # resets colorama after each statement
             readline.parse_and_bind("tab: complete")
-            readline.set_completer(lambda text, state: self.variable_completer_currentclient(text, state))
+            readline.set_completer(lambda text, state: tab_compeletion(text, state, ["shell", "close", "processes", "sysinfo", "close", "checkfiles", "download", "upload", "services", "netstat", "diskusage", "listdir"]))
             command = (input(colorama.Fore.YELLOW + f"{r_address[0]}:{r_address[1]} Command: ").lower()) # asks uses for command
             if command == "exit": # exits back to multihandler menu
                 break
@@ -67,24 +64,12 @@ class MultiHandlerCommands:
                 elif command == "listdir":
                     self.sessioncommands.list_dir(conn, r_address)
                 elif not execute_local_comands(command):
-                    print((colorama.Fore.GREEN + self.config['SessionModules']['help']))
+                    print((colorama.Fore.GREEN + config['SessionModules']['help']))
             except (KeyError, SyntaxError, AttributeError):
-                print((colorama.Fore.GREEN + self.config['SessionModules']['help'])) #if the command is not matched then it prints help menu
+                print((colorama.Fore.GREEN + config['SessionModules']['help'])) #if the command is not matched then it prints help menu
         return
     
-    def showconfig(self) -> None:
-        """Shows the config TOML configuration"""
-        config = ""
-        with open("config.toml", "r") as f:
-            file = f.readlines()
-        for line in file:
-            if line.startswith("[MultiHandlerCommands]"):
-                break
-            config += line
-        print(config)
-    
-
-    def listconnections(self, connectionaddress) -> None:   
+    def listconnections(self, connectionaddress: list) -> None:   
         """List all active connections stored in the global objects variables"""  
         if len(connectionaddress) == 0: # no connections
             print(colorama.Fore.RED +"No Active Sessions")
@@ -95,7 +80,7 @@ class MultiHandlerCommands:
         return
     
 
-    def sessionconnect(self, connection_details, connection_address) -> None:
+    def sessionconnect(self, connection_details: list, connection_address: list) -> None:
         """allows interaction with individual session, 
             passes connection details through to the current_client function""" 
         try:           
@@ -106,7 +91,7 @@ class MultiHandlerCommands:
         return  
     
     
-    def close_all_connections(self, connection_details, connection_address) -> None:
+    def close_all_connections(self, connection_details: list, connection_address: list) -> None:
         """close all connections and remove the details from the lists in global objects"""
         error = False
         for i, conn in enumerate(connection_details): # takes each connection 
@@ -115,10 +100,10 @@ class MultiHandlerCommands:
                 if receive_data(conn) == "ack":
                     conn.shutdown(socket.SHUT_RDWR) # shutdown the SSL socket
                     conn.close() # closes connection
-                if not self.config["server"]["quiet_mode"]:
+                if not config["server"]["quiet_mode"]:
                     print(colorama.Back.GREEN + f"Closed {connection_address[i]}") # user message
             except Exception as e: #handles ssl.SSLEOFError
-                if not self.config["server"]["quiet_mode"]:
+                if not config["server"]["quiet_mode"]:
                     print(colorama.Back.RED + f"Error Closing + {connection_address[i]}") # user message
                     print(colorama.Back.RED + str(e))
                 error = True
@@ -133,7 +118,7 @@ class MultiHandlerCommands:
         return
 
 
-    def close_from_multihandler(self, connection_details, connection_address) -> None:
+    def close_from_multihandler(self, connection_details: list, connection_address: list) -> None:
         """allows an indiviudal client to be closed the multi handler menu"""
         try:
             data = int(input("What client do you want to close? ")) #socker to close
@@ -184,7 +169,7 @@ class MultiHandlerCommands:
             print(colorama.Back.RED + "File or Directory Does not exist") # print error message
 
 
-    def hashfile(self, file) -> None :
+    def hashfile(self, file: str) -> None :
         """hashes a file fed into it and calls the datbase function to add to the database"""
         with open(file, 'rb') as directoryFiles: # opens the file 
             #hashes as sha256 and sends into addHashToDatabase
@@ -193,7 +178,7 @@ class MultiHandlerCommands:
             return
     
 
-    def addHashToDatabase(self, file, hashedFile) -> None:
+    def addHashToDatabase(self, file: str, hashedFile: str) -> None:
         """checks if the hash is in the database, if not adds it to the database """
         if str(self.database.search_query("*", "Hashes",  "Hash", hashedFile)) == "None": #search database
                 self.database.insert_entry("Hashes", f'"{file}","{hashedFile}"') # add to database if unique

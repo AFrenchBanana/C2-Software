@@ -12,46 +12,47 @@ import os
 import sys
 import colorama
 import readline 
+
 from datetime import datetime
 from Modules.content_handler import TomlFiles
 from Modules.authentication import Authentication
 from Modules.multi_handler_commands import MultiHandlerCommands
 from PacketSniffing.PacketSniffer import PacketSniffer
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, execute_local_comands
+from Modules.global_objects import send_data, receive_data, add_connection_list, connectionaddress, connectiondetails, execute_local_comands, config, tab_compeletion
+from Modules.config_configuration import config_menu
+
 
 class MultiHandler:
     def __init__(self) -> None:
         """main function that starts the socket server, threads the socket.start() as a daemon to allow multiple connections, it starts the database for the main thread 
         it then runs the multihandler function"""
-        with TomlFiles("config.toml") as f:
-            self.config = f # loads the config file
         self.multihandlercommands = MultiHandlerCommands() # loads the multi handler commands class
         self.Authentication = Authentication() #loads the authentication class
         self.database = DatabaseClass() # loads the database class
         colorama.init(autoreset=True) # resets colours after each print statement
-        if self.config['packetsniffer']['active'] == True: # if packetsniffer is enabled start the packet sniffer socket and class
+        if config['packetsniffer']['active'] == True: # if packetsniffer is enabled start the packet sniffer socket and class
             sniffer = PacketSniffer()
             sniffer.start_raw_socket()
         
     def create_certificate(self) -> None:
         """checks if TLS certificates are created in the location defined in config.toml.
         If these don't exist, a self signed key and certificate is made."""
-        if not os.path.isfile(os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])) and not os.path.isfile(os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])): # checks if certificates do not exist
-            if os.path.isdir(self.config['server']['TLSCertificateDir']) is False:
-                os.mkdir(self.config['server']['TLSCertificateDir'])
-            os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])} -days 365 -out {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])} -subj '/CN=localhost'") # creates certificate
-            print(colorama.Fore.GREEN + f"TLS certificates created:{os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey'])} and {os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate'])}") # print confirmation message
+        if not os.path.isfile(os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSkey'])) and not os.path.isfile(os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSCertificate'])): # checks if certificates do not exist
+            if os.path.isdir(config['server']['TLSCertificateDir']) is False:
+                os.mkdir(config['server']['TLSCertificateDir'])
+            os.system(f"openssl req -x509 -newkey rsa:2048 -nodes -keyout {os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSkey'])} -days 365 -out {os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSCertificate'])} -subj '/CN=localhost'") # creates certificate
+            print(colorama.Fore.GREEN + f"TLS certificates created:{os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSkey'])} and {os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSCertificate'])}") # print confirmation message
         return
 
     def startsocket(self) -> None:
         """starts a TLS socket and threads the accept connection to allow multiple connections"""
         global SSL_Socket, socket_clear
         #sets the listen address based off the config file variables
-        self.address = self.config['server']['listenaddress'], self.config['server']['port']
+        self.address = config['server']['listenaddress'], config['server']['port']
         #loads context to allow the socket to be wrapped in SSL
         context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        context.load_cert_chain(certfile=os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSCertificate']), keyfile=os.path.join(self.config['server']['TLSCertificateDir'], self.config['server']['TLSkey']))
+        context.load_cert_chain(certfile=os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSCertificate']), keyfile=os.path.join(config['server']['TLSCertificateDir'], config['server']['TLSkey']))
         socket_clear = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         SSL_Socket = context.wrap_socket(socket_clear, server_side=True)
         # tries to bind the socket to an address
@@ -78,51 +79,45 @@ class MultiHandler:
             send_data(conn, self.Authentication.get_authentication_string())
             if (self.Authentication.test_auth(receive_data(conn), r_address[1])):
                 hostname = receive_data(conn)
-                send_data(conn, str(self.config['packetsniffer']['active'])) #send if sniffer occurs
-                if self.config['packetsniffer']['active']:
-                    send_data(conn, str(self.config['packetsniffer']['port'])) # send port number
+                send_data(conn, str(config['packetsniffer']['active'])) #send if sniffer occurs
+                if config['packetsniffer']['active']:
+                    send_data(conn, str(config['packetsniffer']['port'])) # send port number
                 add_connection_list(conn, r_address, hostname) #adds the connection to the lists
                 threadDB.insert_entry("Addresses", f'"{r_address[0]}", "{r_address[1]}", "{hostname}", "{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # adds the IP address to the database
             else:
                 conn.close() 
-            
-                
-    def variable_completer_multihandler(self, text, state) -> str:
-        variables = ["list", "sessions", "close", "closeall", "hashfiles", "config", "help", "exit"]
-        options = [var for var in variables if var.startswith(text)]
-        return options[state] if state < len(options) else None
-    
+             
 
     def multi_handler(self) -> None: 
     #multi handler function that allows a user to interact with the sessions.
         #available_commands = WordCompleter(['list', 'sessions', 'close', 'closeall', 'hashfiles', 'config', 'help', 'exit'])
         print(colorama.Fore.YELLOW + f"Awaiting connection on port {self.address[0]}:{self.address[1]}") #feedback showing what address the server is listenign on
-        if self.config['packetsniffer']['active']:
-            print(colorama.Back.GREEN + (f"PacketSniffing active on port {self.config['packetsniffer']['port']}"))
+        if config['packetsniffer']['active']:
+            print(colorama.Back.GREEN + (f"PacketSniffing active on port {config['packetsniffer']['port']}"))
         while True: # Loop that lists active connections an allows user to interact with a session
             readline.parse_and_bind("tab: complete")
-            readline.set_completer(lambda text, state: self.variable_completer_multihandler(text, state))
+            readline.set_completer(lambda text, state: tab_compeletion(text, state, ["list", "sessions", "close", "closeall", "hashfiles", "config", "help", "exit", "config"]))
             command = input("MultiHandler: ").lower()
             if command == "exit": # closes the server down
                 print(colorama.Fore.RED + f"Closing connections")
                 break # exits the multihandler
-            try: # tries to execute from known commands
-                if command == "list":
-                    self.multihandlercommands.listconnections(connectionaddress)
-                elif command == "sessions":
-                    self.multihandlercommands.sessionconnect(connectiondetails, connectionaddress)
-                elif command == "close":
-                    self.multihandlercommands.close_from_multihandler(connectiondetails, connectionaddress)
-                elif command == "closeall":
-                    self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
-                elif command == "hashfiles":
-                    self.multihandlercommands.localDatabaseHash()
-                elif command == "config":
-                    self.multihandlercommands.showconfig()
-                elif not execute_local_comands(command):
-                    print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
-            except (KeyError, SyntaxError, AttributeError) as e:
-                print(self.config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
+            #try: # tries to execute from known commands
+            if command == "list":
+                self.multihandlercommands.listconnections(connectionaddress)
+            elif command == "sessions":
+                self.multihandlercommands.sessionconnect(connectiondetails, connectionaddress)
+            elif command == "close":
+                self.multihandlercommands.close_from_multihandler(connectiondetails, connectionaddress)
+            elif command == "closeall":
+                self.multihandlercommands.close_all_connections(connectiondetails, connectionaddress)
+            elif command == "hashfiles":
+                self.multihandlercommands.localDatabaseHash()
+            elif command == "config":
+                config_menu()
+            elif not execute_local_comands(command):
+                print(config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
+            #except (KeyError, SyntaxError, AttributeError) as e:
+                #print(config['MultiHandlerCommands']['help']) #if this fails print the help menu text in the config
         return      
 
     

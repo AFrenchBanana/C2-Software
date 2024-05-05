@@ -7,16 +7,14 @@ the returned string
 from hashlib import sha512
 import string
 import random
-from Modules.content_handler import TomlFiles
+from Modules.global_objects import config
 
 class Authentication:
     """class that handles authentication requests when a client connects, helps prevent
     rogue clients from connectiong"""
 
     def __init__(self) -> None:
-        with TomlFiles("config.toml") as file:
-            self.config = file
-        self.keylength = self.config['authentication']['keylength']
+        self.keylength = config['authentication']['keylength']
         self.key = ""
         self.auth_key = ""
 
