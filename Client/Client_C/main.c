@@ -16,6 +16,7 @@
 #include "Linux/systeminfo.h"
 #include "Generic/server_handler.h"
 #include "Generic/hash_file.h"
+#include "Generic/file_transfer.h"
 
 
 int main() {

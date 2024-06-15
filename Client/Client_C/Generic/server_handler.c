@@ -4,11 +4,13 @@
 #include <unistd.h>
 #include <string.h>
 #include <openssl/ssl.h>
+
 #include "send_receive.h"
 #include "../Linux/systeminfo.h"
 #include "hash_file.h"
 #include "../Linux/list_dir.h"
 #include "../Linux/shell.h"
+#include "file_transfer.h"
 
 
 void server_handler(SSL* ssl){
@@ -35,6 +37,12 @@ void server_handler(SSL* ssl){
         } else if (strcmp(data, "shell") == 0) {
             printf("Shell\n");
             shell(ssl);
+        } else if (strcmp(data, "send_file") == 0) {
+            printf("Sending file\n");
+            send_file(ssl);
+        } else if (strcmp(data, "recv_file") == 0) {
+            printf("Receiving file\n");
+            recv_file(ssl);
         }           
         else {
             send_data(ssl, "Invalid command");

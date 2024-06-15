@@ -13,6 +13,7 @@
         "hash_file.h": "c",
         "list_dir.h": "c",
         "inet.h": "c",
-        "ssl.h": "c"
+        "ssl.h": "c",
+        "file_transfer.h": "c"
     }
 }
