@@ -62,11 +62,11 @@ SSL* ssl_connection() {
         closesocket(sockfd);
         return NULL;
     }
-
+    puts("Connected to server");
     // Create an SSL connection
     ssl = SSL_new(ctx);
     SSL_set_fd(ssl, sockfd);
-
+    puts("performing handshake");
     // Perform the SSL handshake
     if (SSL_connect(ssl) != 1) {
         perror("Error during SSL handshake");

@@ -29,6 +29,7 @@
 
 int main() {
     while(true) {
+        puts("connecting");
         SSL* ssl = ssl_connection();
         if (ssl == NULL) {
             return EXIT_FAILURE;

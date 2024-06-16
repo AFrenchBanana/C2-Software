@@ -5,8 +5,7 @@ OUTPUT_LINUX = client_linux.elf
 OUTPUT_WINDOWS = client_windows.exe
 WIN_CC = x86_64-w64-mingw32-gcc
 WIN_CFLAGS = -I/usr/x86_64-w64-mingw32/include -L/usr/x86_64-w64-mingw32/lib -I/home/ryan/openssl-mingw/openssl-1.1.1k/include
-WIN_LDFLAGS = -L/home/ryan/openssl-mingw/openssl-1.1.1k/ -lssl -lcrypto -lws2_32 -lbcrypt
-
+WIN_LDFLAGS = -L/home/ryan/openssl-mingw/openssl-1.1.1k/ -lssl -lcrypto -lws2_32 -lbcrypt -lcrypt32 -static
 # Linux build
 linux:
 	$(CC) $(CFLAGS) -o $(OUTPUT_LINUX) main.c Linux/*.c Generic/*.c $(LDFLAGS)
