@@ -73,6 +73,7 @@ class Client:
         return
 
 
+
     def authentication(self, auth_key):
         """calculates the authentication key and returns the correct hash"""
         auth_key =  hashlib.sha512(auth_key.encode()).hexdigest() 
@@ -483,6 +484,7 @@ if __name__ == '__main__':
             client.socketinitilsation() #starts socket
             client.connection() # starts conneciton
             client.sendhostname() # sends hostname
+            client.send_data(ssl_sock, "Python")
             client.check_listener() # checks listner
             client.serverhandler() #starts server handler
     except KeyboardInterrupt:

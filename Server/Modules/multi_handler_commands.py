@@ -7,7 +7,7 @@ this allows for multiple connections to be interacted with.
 from Modules.sessions_commands import SessionCommandsClass
 from Modules.content_handler import TomlFiles
 from ServerDatabase.database import DatabaseClass
-from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, execute_local_comands, send_data, receive_data, config, tab_compeletion
+from Modules.global_objects import remove_connection_list, connectionaddress, connectiondetails, hostname, operatingsystem, execute_local_comands, send_data, receive_data, config, tab_compeletion
 
 from typing import Tuple
 
@@ -76,7 +76,7 @@ class MultiHandlerCommands:
         else:
             print("Sessions:")
             for i, address in enumerate(connectionaddress): # loops through
-                print(colorama.Fore.GREEN + f"{i}: {address[0]}:{address[1]} - {hostname[i]}") # i is the index in enumerate, address[0] is the IP and [1] is the port
+                print(colorama.Fore.GREEN + f"{i}: {address[0]}:{address[1]} - {hostname[i]} - {operatingsystem[i]}") # i is the index in enumerate, address[0] is the IP and [1] is the port
         return
     
 
@@ -111,6 +111,8 @@ class MultiHandlerCommands:
         connectionaddress.clear() 
         connectiondetails.clear()
         hostname.clear()
+        operatingsystem.clear()
+        
         if not error:
             print(colorama.Back.GREEN + "All connections closed") # user message
         else: 

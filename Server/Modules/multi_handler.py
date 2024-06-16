@@ -79,10 +79,11 @@ class MultiHandler:
             send_data(conn, self.Authentication.get_authentication_string())
             if (self.Authentication.test_auth(receive_data(conn), r_address[1])):
                 hostname = receive_data(conn)
+                OS = receive_data(conn)
                 send_data(conn, str(config['packetsniffer']['active'])) #send if sniffer occurs
                 if config['packetsniffer']['active']:
                     send_data(conn, str(config['packetsniffer']['port'])) # send port number
-                add_connection_list(conn, r_address, hostname) #adds the connection to the lists
+                add_connection_list(conn, r_address, hostname, OS) #adds the connection to the lists
                 threadDB.insert_entry("Addresses", f'"{r_address[0]}", "{r_address[1]}", "{hostname}", "{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"') # adds the IP address to the database
             else:
                 conn.close() 

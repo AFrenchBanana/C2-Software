@@ -18,17 +18,19 @@ import ssl
 connectionaddress = []
 connectiondetails = []
 hostname = []
+operatingsystem = []
 
 
 with TomlFiles("config.toml") as f:
     config = f
 
-def add_connection_list(conn: ssl.SSLSocket, r_address: Tuple[str, int] , host: str) -> None:
+def add_connection_list(conn: ssl.SSLSocket, r_address: Tuple[str, int] , host: str, OS: str) -> None:
     """this function places the connection details into 3 lists, one for each variable upon succesful socket connection
     this allows the connection to be accessed from anywhere within the server"""
     connectiondetails.append(conn) # the socket connection details
     connectionaddress.append(r_address) #the ip address and port
     hostname.append(host) #hostname or the socket
+    operatingsystem.append(OS) #operating system of the socket
     return
 
 
