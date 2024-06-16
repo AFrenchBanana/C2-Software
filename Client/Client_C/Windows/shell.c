@@ -5,7 +5,6 @@
 #include <openssl/ssl.h>
 #include <unistd.h>
 #include <limits.h>
-#include <pwd.h>
 #include <errno.h>
 #include <fcntl.h>
 
@@ -17,26 +16,11 @@
 
 
 char* getuser() {
-    struct passwd *pw = getpwuid(getuid());
-    if (pw != NULL) {
-        return pw->pw_name;
-    } else {
-        return "Unknown";
-    }
+    return "Unknown";
 }
 
 char* getcwd_wrapper() {
-    char* buffer = (char*)malloc(PATH_MAX);
-    if (buffer != NULL) {
-        if (getcwd(buffer, PATH_MAX) != NULL) {
-            return buffer;
-        } else {
-            free(buffer);
-            return NULL;
-        }
-    } else {
-        return NULL;
-    }
+    return "Unknown";
 }
 
 char* execute_command(char* command) {

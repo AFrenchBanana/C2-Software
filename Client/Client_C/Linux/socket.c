@@ -8,7 +8,7 @@
 #include <unistd.h> 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "../Generic/send_receive.h"
+#include "send_receive.h"
 #include "../Generic/string_manipulation.h"
 #include "../Generic/hashing.h"
 

