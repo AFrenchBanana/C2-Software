@@ -34,12 +34,14 @@ int main() {
         if (ssl == NULL) {
             return EXIT_FAILURE;
         }
+        puts("authenticating");
         authentication();
         char* hostname = get_hostname();
         send_data(ssl, hostname);
-        //free(hostname);
+        free(hostname);
         char* sniffer_dummy = receive_data(ssl);
         free(sniffer_dummy);
+        puts("server handler");
         server_handler(ssl);
         #ifdef _WIN64
             closesocket(SSL_get_fd(ssl));

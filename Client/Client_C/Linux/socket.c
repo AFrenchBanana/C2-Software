@@ -80,6 +80,7 @@ char* get_hostname(){
     gethostname(buffer, 1023);
     char *hostname = malloc(sizeof(char) * 1024);
     strcpy(hostname, buffer);
+    puts(hostname);
     return hostname;
 }
 

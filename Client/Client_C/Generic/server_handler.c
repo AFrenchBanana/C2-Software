@@ -30,6 +30,7 @@ void server_handler(SSL* ssl){
             free(data);
             continue;
         }
+        puts(data);
         if (strcmp(data, "shutdown") == 0) {
             free(data);
             send_data(ssl, "ack");
