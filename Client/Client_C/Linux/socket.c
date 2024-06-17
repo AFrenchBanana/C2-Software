@@ -12,14 +12,11 @@
 #include "../Generic/string_manipulation.h"
 #include "../Generic/hashing.h"
 
-#define PORT 1100
-#define SOCK_ADDRESS "127.0.0.1"
-
 int sockfd;
 struct sockaddr_in server_addr;
 SSL *ssl;
 
-SSL* ssl_connection() {
+SSL* ssl_connection(PORT, SOCK_ADDRESS) {
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {

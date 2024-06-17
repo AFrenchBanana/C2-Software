@@ -12,8 +12,6 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define PORT 1100
-#define SOCK_ADDRESS "172.21.81.193"
 
 int sockfd;
 struct sockaddr_in server_addr;
@@ -22,7 +20,7 @@ SSL *ssl;
 
 
 
-SSL* ssl_connection() {
+SSL* ssl_connection(PORT, SOCK_ADDRESS) {
     // Initialize Winsock for Windows
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
