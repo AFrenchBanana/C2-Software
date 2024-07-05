@@ -12,7 +12,7 @@ quiet_mode = true
 keylength = 111
 
 [packetsniffer]
-active = false
+active = true
 listenaddress = "0.0.0.0"
 port = 11001
 TLSCertificate = "./Certificates/cert.pem"
@@ -96,3 +96,7 @@ schema = "Filename text, Hash text"
 [[tables]]
 name = "Disk"
 schema = "IP text, Disk Usage, Time text"
+
+[[tables]]
+name = "Sniffer"
+schema = "Protocol, source_mac, destination_mac, SourceIP, DestIP"
