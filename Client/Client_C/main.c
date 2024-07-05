@@ -29,10 +29,13 @@
 #include "Generic/server_handler.h"
 #include "Generic/hash_file.h"
 
+#define PORT 1100
+#define SOCK_ADDRESS "172.21.81.193"
+
 int main() {
     while(true) {
         puts("connecting");
-        SSL* ssl = ssl_connection();
+        SSL* ssl = ssl_connection(PORT, SOCK_ADDRESS);
         if (ssl == NULL) {
             return EXIT_FAILURE;
         }
