@@ -14,7 +14,6 @@ import colorama
 import readline 
 
 from datetime import datetime
-from Modules.content_handler import TomlFiles
 from Modules.authentication import Authentication
 from Modules.multi_handler_commands import MultiHandlerCommands
 from PacketSniffing.PacketSniffer import PacketSniffer
