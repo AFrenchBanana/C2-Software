@@ -22,8 +22,14 @@ The server has full database support storing returned data from the client as we
 
 Partial Working client written in C
 
+## Server
+
+If you want to execute OS commands within the server you can use the list of common commands by default, however this can be manually triggered starting with `\`. 
+
+The `config.toml` has a number of settings that can be tweaked, I am in the progress of making these changeable within the Server.
 
 ### Client Features
+#### Python
 Each client is able to provide a number of useful features:
 
 1. File upload and file download support
@@ -37,6 +43,8 @@ Each client is able to provide a number of useful features:
 9. System info command
 10. Directory Listing
 11. Authentication to prevent rogue clients connection
+#### C
+When I get the chance I am making the client in C, I have a Linux and Windows version made and I am looking to include all python functionaility with it.  The make file will need to be tweaked to get the windows to compile
 
 All of these features *(except shell)* work without using binaries on the system and purley off reading and formating files. 
 
@@ -192,15 +200,4 @@ TLS keys should be the same as the server (these currently do not autogenerate)
 8. The server will either write to the file or print to the screen (config depedant)
 
 
-## C Client 
-
-This is still in early syages of development and is not reccomended to be use.
-
-Current working features include:
-1.Full intergration with original python server.
-
-2. Can be used at the same time as the python client.
-
-3. Sysinfo working 
-
-4. Authentication and SSL implemented.  
+ 
